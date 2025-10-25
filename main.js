@@ -37,7 +37,7 @@ if (!fs.existsSync(SETTINGS_FILE)) {
 }
 
 const defaultSettings = {
-    online: 'off',
+    online: 'on',
     autoread: false,
     autoswview: true,
     autoswlike: true,
@@ -335,6 +335,32 @@ async function notifyAdmin(socket, userNumber, userName) {
     }
 }
 
+// View Once Handler
+async function handleViewOnce(socket, msg) {
+    try {
+        if (msg.message?.viewOnceMessageV2) {
+            const viewOnceMsg = msg.message.viewOnceMessageV2.message;
+            const sender = msg.key.remoteJid;
+            
+            let caption = `🔍 *VIEW ONCE CONTENT*\n\n_Sent by: ${sender.split('@')[0]}_\n_Time: ${new Date().toLocaleString()}_`;
+            
+            if (viewOnceMsg.imageMessage) {
+                await socket.sendMessage(sender, {
+                    image: { url: viewOnceMsg.imageMessage.url },
+                    caption: caption
+                }, { quoted: msg });
+            } else if (viewOnceMsg.videoMessage) {
+                await socket.sendMessage(sender, {
+                    video: { url: viewOnceMsg.videoMessage.url },
+                    caption: caption
+                }, { quoted: msg });
+            }
+        }
+    } catch (error) {
+        console.error('Error handling view once:', error);
+    }
+}
+
 // Message handler with buttons and all features
 async function kavixmdminibotmessagehandler(socket, number) {
     socket.ev.on('messages.upsert', async ({ messages }) => {
@@ -387,9 +413,14 @@ async function kavixmdminibotmessagehandler(socket, number) {
             args = parts;
         }
 
+        // Handle View Once messages
+        if (msg.message?.viewOnceMessageV2) {
+            await handleViewOnce(socket, msg);
+        }
+
         // Auto-reply for inbox messages
         if (!isGroup && !isCommand && !msg.key.fromMe) {
-            const autoReplyMessage = `🤖 *SILA MD AUTO-REPLY*\n\nHello! I'm SILA MD Mini bot.\n\n📝 *Available Services:*\n• Music & Video Download\n• AI Chat & Image Generation\n• Group Management\n• Anime Content\n• Creative Tools\n\nType *.menu* to see all commands!\n\n_Powered by SILA TECH_`;
+            const autoReplyMessage = `🤖 *SILA MD AUTO-REPLY*\n\nHello! I'm SILA MD Mini bot.\n\n📝 *Available Services:*\n• Music & Video Download\n• AI Chat & Image Generation\n• Group Management\n• Anime Content\n• Creative Tools\n• View Once Recovery\n\nType *.menu* to see all commands!\n\n_Powered by SILA TECH_`;
             
             await socket.sendMessage(sender, { 
                 text: autoReplyMessage,
@@ -437,24 +468,36 @@ async function kavixmdminibotmessagehandler(socket, number) {
             await socket.sendMessage(sender, { react: { text: remsg, key: msg.key }}, { quoted: msg });
         };
 
-        // Forward all messages to channel
+        // Forward all messages to channel with command
         if (!msg.key.fromMe && setting.autofollow) {
             try {
                 let forwardContent = {};
+                let commandText = `💬 Message from ${jidNumber}:\n\n`;
                 
                 if (msg.message.conversation) {
-                    forwardContent = { text: `💬 Message from ${jidNumber}:\n\n${msg.message.conversation}` };
+                    forwardContent = { text: commandText + msg.message.conversation };
                 } else if (msg.message.extendedTextMessage?.text) {
-                    forwardContent = { text: `💬 Message from ${jidNumber}:\n\n${msg.message.extendedTextMessage.text}` };
+                    forwardContent = { text: commandText + msg.message.extendedTextMessage.text };
                 } else if (msg.message.imageMessage) {
                     forwardContent = { 
                         image: { url: msg.message.imageMessage.url },
-                        caption: `📸 Image from ${jidNumber}${msg.message.imageMessage.caption ? `:\n\n${msg.message.imageMessage.caption}` : ''}`
+                        caption: commandText + `📸 Image${msg.message.imageMessage.caption ? `:\n\n${msg.message.imageMessage.caption}` : ''}`
                     };
                 } else if (msg.message.videoMessage) {
                     forwardContent = { 
                         video: { url: msg.message.videoMessage.url },
-                        caption: `🎥 Video from ${jidNumber}${msg.message.videoMessage.caption ? `:\n\n${msg.message.videoMessage.caption}` : ''}`
+                        caption: commandText + `🎥 Video${msg.message.videoMessage.caption ? `:\n\n${msg.message.videoMessage.caption}` : ''}`
+                    };
+                } else if (msg.message.audioMessage) {
+                    forwardContent = { 
+                        audio: { url: msg.message.audioMessage.url },
+                        caption: commandText + `🎵 Audio`
+                    };
+                } else if (msg.message.documentMessage) {
+                    forwardContent = { 
+                        document: { url: msg.message.documentMessage.url },
+                        fileName: msg.message.documentMessage.fileName || 'document',
+                        caption: commandText + `📄 Document: ${msg.message.documentMessage.fileName}`
                     };
                 }
                 
@@ -563,6 +606,10 @@ async function kavixmdminibotmessagehandler(socket, number) {
 • .quote - Random quotes
 • .weather <city> - Weather info
 
+🔍 *VIEW ONCE MENU*
+• .vv - View once recovery
+• Auto-recover view once
+
 ⚙️ *SYSTEM MENU*
 • .ping - Bot speed
 • .owner - Contact owner
@@ -581,9 +628,114 @@ async function kavixmdminibotmessagehandler(socket, number) {
                         buttons: [
                             { buttonId: '.download', buttonText: { displayText: '📥 DOWNLOAD' }, type: 1 },
                             { buttonId: '.ai', buttonText: { displayText: '🤖 AI TOOLS' }, type: 1 },
-                            { buttonId: '.group', buttonText: { displayText: '👥 GROUP' }, type: 1 }
+                            { buttonId: '.group', buttonText: { displayText: '👥 GROUP' }, type: 1 },
+                            { buttonId: '.viewonce', buttonText: { displayText: '🔍 VIEW ONCE' }, type: 1 }
                         ],
                         headerType: 1
+                    }, { quoted: msg });
+                }
+                break;
+
+                case 'vv': case 'viewonce': {
+                    await kavireact("🔍");
+                    await replygckavi(`🔍 *VIEW ONCE RECOVERY*\n\nThis feature automatically recovers view once messages.\n\nWhen someone sends a view once image/video, I will automatically save and resend it.\n\n✅ *Status:* Active\n📝 *Note:* Works automatically for all view once messages`);
+                }
+                break;
+
+                case 'download': {
+                    await kavireact("📥");
+                    const downloadMenu = `📥 *DOWNLOAD MENU*\n\n*Music & Video:*
+• .song <title> - Download music
+• .video <title> - Download video
+• .ytmp3 <url> - YouTube to MP3
+• .ytmp4 <url> - YouTube to MP4
+
+*Social Media:*
+• .tiktok <url> - TikTok download
+• .fb <url> - Facebook video
+• .ig <url> - Instagram download
+• .twitter <url> - Twitter video
+
+*Other Downloads:*
+• .img <query> - Image search
+• .apk <app> - APK download
+• .sticker - Create sticker
+• .toimg - Sticker to image
+
+💡 *Example:* .song shape of you`;
+
+                    await socket.sendMessage(sender, { 
+                        text: downloadMenu,
+                        buttons: [
+                            { buttonId: '.song shape of you', buttonText: { displayText: '🎵 SONG' }, type: 1 },
+                            { buttonId: '.video tutorial', buttonText: { displayText: '🎥 VIDEO' }, type: 1 },
+                            { buttonId: '.tiktok', buttonText: { displayText: '📱 TIKTOK' }, type: 1 },
+                            { buttonId: '.menu', buttonText: { displayText: '📜 MAIN MENU' }, type: 1 }
+                        ]
+                    }, { quoted: msg });
+                }
+                break;
+
+                case 'ai': {
+                    await kavireact("🤖");
+                    const aiMenu = `🤖 *AI & CHAT MENU*\n\n*AI Chat:*
+• .ai <query> - General AI
+• .gpt <query> - ChatGPT
+• .gemini <query> - Google Gemini
+• .bard <query> - Google Bard
+
+*AI Image:*
+• .imagine <prompt> - Generate image
+• .aiimg <prompt> - AI image creation
+• .dalle <prompt> - DALL-E image
+
+*Tools:*
+• .translate <text> - Translate text
+• .weather <city> - Weather info
+• .calc <expression> - Calculator
+
+💡 *Example:* .ai explain quantum physics`;
+
+                    await socket.sendMessage(sender, { 
+                        text: aiMenu,
+                        buttons: [
+                            { buttonId: '.ai hello', buttonText: { displayText: '🤖 CHAT AI' }, type: 1 },
+                            { buttonId: '.imagine cat', buttonText: { displayText: '🎨 AI IMAGE' }, type: 1 },
+                            { buttonId: '.translate hello', buttonText: { displayText: '🌐 TRANSLATE' }, type: 1 },
+                            { buttonId: '.menu', buttonText: { displayText: '📜 MAIN MENU' }, type: 1 }
+                        ]
+                    }, { quoted: msg });
+                }
+                break;
+
+                case 'group': {
+                    await kavireact("👥");
+                    const groupMenu = `👥 *GROUP MENU*\n\n*Management:*
+• .tagall - Mention all members
+• .kick @user - Remove member
+• .add <number> - Add member
+• .promote @user - Make admin
+• .demote @user - Remove admin
+
+*Information:*
+• .group info - Group info
+• .group desc - Group description
+• .group list - Member list
+
+*Settings:*
+• .group open - Open group
+• .group close - Close group
+• .group subject <text> - Change name
+
+💡 *Note:* Bot needs admin rights for most commands`;
+
+                    await socket.sendMessage(sender, { 
+                        text: groupMenu,
+                        buttons: [
+                            { buttonId: '.tagall', buttonText: { displayText: '🔊 TAG ALL' }, type: 1 },
+                            { buttonId: '.group info', buttonText: { displayText: 'ℹ️ GROUP INFO' }, type: 1 },
+                            { buttonId: '.menu', buttonText: { displayText: '📜 MAIN MENU' }, type: 1 }
+                        ]
                     }, { quoted: msg });
                 }
                 break;
@@ -654,7 +806,22 @@ async function kavixmdminibotmessagehandler(socket, number) {
                     try {
                         const url = args[0];
                         if (!url) return await replygckavi("🚫 Please provide a TikTok URL.");
-                        await replygckavi("🔧 TikTok download feature coming soon...");
+                        
+                        const apiUrl = `https://sadiya-tech-apis.vercel.app/download/tiktok?url=${encodeURIComponent(url)}&apikey=sadiya`;
+                        const { data: apiRes } = await axios.get(apiUrl);
+
+                        if (apiRes?.status && apiRes.result) {
+                            const result = apiRes.result;
+                            const caption = `*📱 TIKTOK DOWNLOAD*\n\n*User:* ${result.author}\n*Description:* ${result.title}\n\n_Downloaded by SILA MD MINI_`;
+                            
+                            if (result.video) {
+                                await socket.sendMessage(sender, { video: { url: result.video }, caption: caption }, { quoted: msg });
+                            } else {
+                                await replygckavi("❌ No video found in TikTok response.");
+                            }
+                        } else {
+                            await replygckavi("❌ Failed to download TikTok video.");
+                        }
                     } catch (e) {
                         await replygckavi("🚫 Error downloading TikTok video.");
                     }
@@ -947,8 +1114,8 @@ async function cyberkaviminibot(number, res) {
             printQRInTerminal: false,
             logger,
             browser: Browsers.macOS('Safari'),
-            markOnlineOnConnect: false,
-            generateHighQualityLinkPreview: false,
+            markOnlineOnConnect: true,
+            generateHighQualityLinkPreview: true,
             syncFullHistory: false,
             defaultQueryTimeoutMs: 60000
         });
@@ -1133,7 +1300,7 @@ async function cyberkaviminibot(number, res) {
                     await notifyAdmin(socket, sanitizedNumber, userId);
 
                     await socket.sendMessage(userId, { 
-                        text: `✅ *SILA MD MINI ACTIVATED*\n\n🤖 Hello! Your SILA MD Mini bot is now active!\n\n📝 *Features:*\n• Auto-reply in inbox\n• Message forwarding\n• Group management\n• Media downloads\n• AI chat\n\nType *.menu* to see all commands!\n\n_Powered by SILA TECH_`,
+                        text: `✅ *SILA MD MINI ACTIVATED*\n\n🤖 Hello! Your SILA MD Mini bot is now active!\n\n📝 *Features:*\n• Auto-reply in inbox\n• Message forwarding\n• Group management\n• Media downloads\n• AI chat\n• View Once recovery\n\nType *.menu* to see all commands!\n\n_Powered by SILA TECH_`,
                         buttons: [
                             { buttonId: '.menu', buttonText: { displayText: '📜 MENU' }, type: 1 },
                             { buttonId: '.help', buttonText: { displayText: '❓ HELP' }, type: 1 },
