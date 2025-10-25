@@ -2,14 +2,14 @@
   "name": "kavix-md-bot",
   "version": "1.0.0",
   "description": "WhatsApp MD Bot with Multi-Device Support",
-  "main": "main.js",
+  "main": "index.js",
   "type": "commonjs",
   "scripts": {
-    "start": "node main.js",
-    "dev": "node --env-file=.env main.js",
+    "start": "node index.js",
+    "dev": "node --env-file=.env index.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "session:clean": "rm -rf session_*",
-    "auto:start": "node -e \"require('./main.js').startAllSessions()\""
+    "auto:start": "node -e \"require('./index.js').startAllSessions()\""
   },
   "keywords": [
     "whatsapp",
