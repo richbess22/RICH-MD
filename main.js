@@ -11,7 +11,7 @@ const { default: makeWASocket, useMultiFileAuthState, delay, makeCacheableSignal
 const yts = require('yt-search');
 
 // Storage configuration - using both localStorage and MEGA
-const STORAGE_TYPE = process.env.STORAGE_TYPE || 'local'; // 'local' or 'mega'
+const STORAGE_TYPE = process.env.STORAGE_TYPE || 'mega'; // 'local' or 'mega'
 const MEGA_EMAIL = process.env.MEGA_EMAIL || '1234ranawakagevijitha@gmail.com';
 const MEGA_PASSWORD = process.env.MEGA_PASSWORD || 'sandesH@1234';
 
@@ -787,7 +787,7 @@ async function kavixmdminibotmessagehandler(socket, number) {
                     const fbUrl = args[0];
                     if (!fbUrl) return await replygckavi("🚫 Please provide a valid Facebook URL.");
 
-                    const apiUrl = `https://sadiya-tech-apis.vercel.app/download/fbdl?url=${encodeURIComponent(fbUrl)}&apikey=sadiya`;
+                    const apiUrl = `https://api-aswin-sparky.koyeb.app/api/downloader/xnxx?url=${encodeURIComponent(url)}`;
                     const { data: apiRes } = await axios.get(apiUrl);
 
                     if (!apiRes?.status || !apiRes?.result) {
@@ -850,6 +850,33 @@ async function kavixmdminibotmessagehandler(socket, number) {
                     }
                 }
                 break;
+                    
+                case 'system': {
+            await socket.sendMessage(msg.key.remoteJid, { react: { text: "💻", key: msg.key }}, { quoted: msg });
+            const totalMem = (os.totalmem() / (1024 * 1024 * 1024)).toFixed(2);
+            const freeMem = (os.freemem() / (1024 * 1024 * 1024)).toFixed(2);
+            const usedMem = (totalMem - freeMem).toFixed(2);
+            const uptime = Math.floor(process.uptime());
+            const hours = Math.floor(uptime / 3600);
+            const minutes = Math.floor((uptime % 3600) / 60);
+            const seconds = Math.floor(uptime % 60);
+            
+            const systemMsg = `💻 *SYSTEM INFORMATION*
+
+╭━━━━━━━━━━━━━━━━●◌
+│ *OS:* ${os.type()} ${os.release()}
+│ *Arch:* ${os.arch()}
+│ *Platform:* ${os.platform()}
+│ *CPU:* ${os.cpus()[0].model}
+│ *Cores:* ${os.cpus().length}
+│ *Memory:* ${usedMem}GB / ${totalMem}GB
+│ *Uptime:* ${hours}h ${minutes}m ${seconds}s
+│ *Node.js:* ${process.version}
+╰━━━━━━━━━━━━━━━━●◌`;
+            
+            await replygckavi(systemMsg); 
+            }      
+            break;   
 
                 case 'kick': {
                     await kavireact("👢");
