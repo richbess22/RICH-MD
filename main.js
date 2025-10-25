@@ -438,7 +438,13 @@ _POWERED BY SILA MD_`;
 // Auto Reply Handler
 async function handleAutoReply(socket, chatId, message, text) {
   const autoReplies = {
-    'hi': 'mambo': 'vip': 'Hello! 👋 How can I help you today?',
+    'hi': 'Hello! 👋 How can I help you today?',
+    'mambo': 'Hello! 👋 How can I help you today?',
+    'hey': 'Hello! 👋 How can I help you today?',
+    'vip': 'Hello! 👋 How can I help you today?',
+    'mkuu': 'Hello! 👋 How can I help you today?',
+    'boss': 'Hello! 👋 How can I help you today?',
+    'habari': 'Hello! 👋 How can I help you today?',
     'hey': 'Hi there! 😊 Use .menu to see all available commands.',
     'bot': 'Yes, I am SILA MD MINI! 🤖 How can I assist you?',
     'menu': 'Type .menu to see all commands! 📜',
