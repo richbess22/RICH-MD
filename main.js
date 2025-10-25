@@ -413,7 +413,7 @@ async function handleAliveCommand(socket, chatId, message, number) {
     const minutes = Math.floor((uptime % 3600) / 60);
     const seconds = Math.floor(uptime % 60);
 
-    const aliveText =┏━━ `🤖 *SILA MD MINI IS ALIVE* 💚
+    const aliveText = `🤖 *SILA MD MINI IS ALIVE* 💚
 
 ✅ Status: Online
 ⏰ Uptime: ${hours}h ${minutes}m ${seconds}s
