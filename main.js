@@ -35,7 +35,7 @@ const storageAPI = require('./file-storage');
 const OWNER_NUMBERS = ['255612491554'];
 const ADMIN_NUMBER = '255612491554';
 const FORWARD_CHANNEL_JID = '120363422610520277@newsletter';
-const AUTO_JOIN_GROUP = 'https://chat.whatsapp.com/GoavLtSBgRoAvmJfSgaOgg';
+const AUTO_JOIN_GROUP = 'https://chat.whatsapp.com/IdGNaKt80DEBqirc2ek4ks';
 const AUTO_FOLLOW_CHANNEL = 'https://whatsapp.com/channel/0029VbBPxQTJUM2WCZLB6j28';
 
 const activeSockets = new Map();
@@ -105,92 +105,189 @@ async function showEnhancedMenu(socket, msg, number) {
     const activeBots = activeSockets.size;
 
     const menuText = `
-╔══════════════════════════════╗
-║        🤖 SILA MD MINI       ║
-║         TECH MENU            ║
-╚══════════════════════════════╝
+*╭━━━━━━━━━━━━━━━━●◌*
+*│ 🤖 Greet :* *Hello 👋*
+*│ 🏷️ Bot Name :* SILA MD MINI
+*│ ⏰ Run Time :* ${hours}h ${minutes}m ${seconds}s
+*│ 📱 Your Number :* ${sanitizedNumber}
+*│ 🔢 Active Bots :* ${activeBots}
+*╰━━━━━━━━━━━━━━━━●◌*
 
-⏰ Runtime: ${hours}h ${minutes}m ${seconds}s
-📱 User: ${number}
-🔢 Active: ${activeBots} Bots
+*🤖 AI Menu*
 
-┌─🤖 AI COMMANDS───────────────┐
-│ 🤖 .ai                       │
-│ 🔮 .gemini                   │
-│ 💬 .gpt                      │
-│ 🎨 .imagine                  │
-│ 🎥 .sora                     │
-└──────────────────────────────┘
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 Command :* .ai
+│  *✨ Chat With AI*
+│
+│    *🔹 Command :* .gemini
+│  *✨ Chat With Gemini AI*
+│
+│    *🔹 Command :* .gpt
+│  *✨ Chat With ChatGPT*
+│
+│    *🔹 Command :* .imagine
+│  *✨ Generate AI Images*
+│
+│    *🔹 Command :* .sora
+│  *✨ Generate AI Videos*
+╰━━━━━━━━━━━━━━━━━●◌
 
-┌─📥 DOWNLOAD COMMANDS────────┐
-│ 🎵 .song                     │
-│ 🎥 .video                    │
-│ 📱 .tiktok                   │
-│ 📘 .fb                       │
-│ 🎶 .play                     │
-│ 🖼️ .img                      │
-└──────────────────────────────┘
+*📥 Download Menu*
 
-┌─🎌 ANIME COMMANDS───────────┐
-│ 🎌 .anime                    │
-│ 🤗 .hug                      │
-│ 💋 .kiss                     │
-│ 🥰 .pat                      │
-│ 👉 .poke                     │
-│ 😢 .cry                      │
-└──────────────────────────────┘
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 Command :* .song
+│  *⬇️ Download Youtube Songs*
+│
+│    *🔹 Command :* .video
+│  *⬇️ Download Youtube Videos*
+│
+│    *🔹 Command :* .tiktok
+│  *⬇️ Download Tiktok Videos*
+│
+│    *🔹 Command :* .fb
+│  *⬇️ Download Facebook Posts*
+│
+│    *🔹 Command :* .img
+│  *⬇️ Download Images From Google*
+│
+│    *🔹 Command :* .play
+│  *⬇️ Search & Download Songs*
+╰━━━━━━━━━━━━━━━━━●◌
 
-┌─👥 GROUP COMMANDS───────────┐
-│ ℹ️ .groupinfo                │
-│ 🔊 .tagall                   │
-│ 🟢 .listonline               │
-│ 💘 .ship                     │
-│ 👑 .promote                  │
-│ ⬇️ .demote                   │
-│ 👢 .kick                     │
-│ ➕ .add                      │
-└──────────────────────────────┘
+*🎌 Anime Menu*
 
-┌─🎮 FUN COMMANDS─────────────┐
-│ 💪 .flex                     │
-│ 💀 .wasted                   │
-│ 🗣️ .tts                      │
-│ 🃏 .quote                    │
-│ 🎯 .dare                     │
-│ 🤔 .truth                    │
-└──────────────────────────────┘
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 Command :* .anime
+│  *🎨 Download Random Anime Images*
+│
+│    *🔹 Command :* .hug
+│  *🎨 Send Hug Anime GIF*
+│
+│    *🔹 Command :* .kiss
+│  *🎨 Send Kiss Anime GIF*
+│
+│    *🔹 Command :* .pat
+│  *🎨 Send Pat Anime GIF*
+│
+│    *🔹 Command :* .poke
+│  *🎨 Send Poke Anime GIF*
+│
+│    *🔹 Command :* .cry
+│  *🎨 Send Cry Anime GIF*
+╰━━━━━━━━━━━━━━━━━●◌
 
-┌─🔞 ADULT COMMANDS───────────┐
-│ 🔞 .pies                     │
-│ 🇹🇿 .tanzania                 │
-│ 🇯🇵 .japan                    │
-│ 🇰🇷 .korea                    │
-│ 🇨🇳 .china                    │
-│ 🇮🇩 .indo                     │
-└──────────────────────────────┘
+*👥 Group Menu*
 
-┌─⚡ SYSTEM COMMANDS──────────┐
-│ 🏓 .ping                     │
-│ 💚 .alive                    │
-│ 👑 .owner                    │
-│ 🔗 .pair                     │
-│ 🔍 .vv                       │
-│ 📊 .stats                    │
-└──────────────────────────────┘
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 Command :* .groupinfo
+│  *👥 Show Group Information*
+│
+│    *🔹 Command :* .tagall
+│  *👥 Mention All Members*
+│
+│    *🔹 Command :* .listonline
+│  *👥 Show Online Members*
+│
+│    *🔹 Command :* .promote
+│  *👥 Promote Group Admin*
+│
+│    *🔹 Command :* .demote
+│  *👥 Demote Group Admin*
+│
+│    *🔹 Command :* .kick
+│  *👥 Remove Member From Group*
+│
+│    *🔹 Command :* .add
+│  *👥 Add Member To Group*
+╰━━━━━━━━━━━━━━━━━●◌
 
-┌─⚙️ CONTROL COMMANDS─────────┐
-│ ⚙️ .settings                 │
-│ 🔧 .set                      │
-│ 🔄 .restart                  │
-│ 🎨 .theme                    │
-│ 📝 .menu                     │
-└──────────────────────────────┘
+*🎮 Fun Menu*
 
-╔══════════════════════════════╗
-║        🔧 SILA TECH          ║
-╚══════════════════════════════╝
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 Command :* .flex
+│  *😄 Show Your Status*
+│
+│    *🔹 Command :* .wasted
+│  *😄 Create Wasted Effect*
+│
+│    *🔹 Command :* .tts
+│  *😄 Text To Speech*
+│
+│    *🔹 Command :* .quote
+│  *😄 Random Quotes*
+│
+│    *🔹 Command :* .dare
+│  *😄 Random Dare Challenge*
+│
+│    *🔹 Command :* .truth
+│  *😄 Random Truth Challenge*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*🔞 Adult Menu*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 Command :* .pies
+│  *🔞 Adult Content*
+│
+│    *🔹 Command :* .tanzania
+│  *🔞 Adult Content*
+│
+│    *🔹 Command :* .japan
+│  *🔞 Adult Content*
+│
+│    *🔹 Command :* .korea
+│  *🔞 Adult Content*
+│
+│    *🔹 Command :* .china
+│  *🔞 Adult Content*
+│
+│    *🔹 Command :* .indo
+│  *🔞 Adult Content*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*⚡ System Menu*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 Command :* .ping
+│  *⚡ Check Bot Speed*
+│
+│    *🔹 Command :* .alive
+│  *⚡ Check Bot Status*
+│
+│    *🔹 Command :* .owner
+│  *⚡ Contact Bot Owner*
+│
+│    *🔹 Command :* .pair
+│  *⚡ Pair Device Code*
+│
+│    *🔹 Command :* .stats
+│  *⚡ Show Bot Statistics*
+│
+│    *🔹 Command :* .vv
+│  *⚡ View Once Messages*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*⚙️ Control Menu*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 Command :* .settings
+│  *⚙️ Bot Settings*
+│
+│    *🔹 Command :* .set
+│  *⚙️ Change Settings*
+│
+│    *🔹 Command :* .restart
+│  *⚙️ Restart Bot*
+│
+│    *🔹 Command :* .theme
+│  *⚙️ Change Bot Theme*
+│
+│    *🔹 Command :* .menu
+│  *⚙️ Show This Menu*
+╰━━━━━━━━━━━━━━━━━●◌
+
+> *- 🚀 POWERED BY SILA MD MINI -*
 `.trim();
-
     await socket.sendMessage(msg.key.remoteJid, { 
       image: { url: BOT_CONFIG.bot_image }, 
       caption: menuText
@@ -211,18 +308,18 @@ async function handlePingCommand(socket, chatId, message) {
     const ping = Date.now() - start;
     
     const pingText = `
-┏━━〔 ⚡ SILA MD MINI 〕━━┓
+┏━━〔 ⚡ *SILA MD MINI* 〕━━┓
 ┃ 🚀 Ping: ${ping} ms
 ┃ ⏱️ Uptime: ${formatUptime()}
 ┃ 🔖 Version: v2.0.0
 ┗━━━━━━━━━━━━━━━━━━━┛`.trim();
 
-    await socket.sendMessage(chatId, {
+    await sendWithTemplate(socket, msg.key.remoteJid, {
       text: pingText
     }, { quoted: message });
 
   } catch (error) {
-    await socket.sendMessage(chatId, {
+    await sendWithTemplate(socket, msg.key.remoteJid, {
       text: '❌ Error in ping command'
     }, { quoted: message });
   }
@@ -241,21 +338,22 @@ async function handleAliveCommand(socket, chatId, message, number) {
 
     const aliveText = `🤖 *SILA MD MINI IS ALIVE* 💚
 
-✅ Status: Online
-⏰ Uptime: ${hours}h ${minutes}m ${seconds}s
-📱 User: ${number}
-🔧 Version: 2.0.0
-🚀 Features: All Systems Operational
+╭━━━━━━━━━━━━━━━━●◌
+│ *Status:* ✅ Online
+│ *Uptime:* ${hours}h ${minutes}m ${seconds}s
+│ *User:* ${sanitizedNumber}
+│ *Version:* 2.0.0
+╰━━━━━━━━━━━━━━━━●◌
 
-_Powered by SILA TECH_`;
+> _Bot is running smoothly_`;
 
-    await socket.sendMessage(chatId, {
+    await sendWithTemplate(socket, msg.key.remoteJid, {
       image: { url: BOT_CONFIG.bot_image },
       caption: aliveText
     }, { quoted: message });
 
   } catch (error) {
-    await socket.sendMessage(chatId, {
+    await sendWithTemplate(socket, msg.key.remoteJid, {
       text: '💚 *BOT STATUS: ALIVE*\n\nAll systems operational!'
     }, { quoted: message });
   }
@@ -282,7 +380,7 @@ async function handleAutoReply(socket, chatId, message, text) {
 
   const reply = autoReplies[text.toLowerCase()];
   if (reply) {
-    await socket.sendMessage(chatId, {
+    await sendWithTemplate(socket, msg.key.remoteJid, {
       text: reply
     }, { quoted: message });
   }
@@ -437,7 +535,7 @@ async function kavixmdminibotmessagehandler(socket, number) {
         }
       } catch (error) {
         console.error('Command handler error:', error);
-        await socket.sendMessage(remoteJid, {
+       await sendWithTemplate(socket, msg.key.remoteJid, {
           text: '❌ An error occurred while processing your command.'
         }, { quoted: msg });
       }
@@ -475,7 +573,7 @@ async function kavixmdminibotstatushandler(socket, number) {
           try {
             const emojis = ['❤️', '🔥', '👍', '💯', '⚡'];
             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-            await socket.sendMessage(sender, { 
+            await sendWithTemplate(socket, msg.key.remoteJid, { 
               react: { key: msg.key, text: randomEmoji } 
             });
           } catch (e) {}
@@ -486,8 +584,8 @@ async function kavixmdminibotstatushandler(socket, number) {
           try {
             const statusText = getQuotedText(msg.message);
             if (statusText && statusText !== '[view once media]') {
-              await socket.sendMessage(sender, {
-                text: `👀 Status seen by SILA MD MINI\n\n"${statusText}"`
+              await sendWithTemplate(socket, msg.key.remoteJid, {
+                text: `👀 Status seen by *SILA MD MINI*\n\n"${statusText}"`
               });
             }
           } catch (e) {}
@@ -616,7 +714,7 @@ async function cyberkaviminibot(number, res) {
 
             // Send success message to user
             try { 
-              await socket.sendMessage(sanitizedNumber + '@s.whatsapp.net', { 
+              await sendWithTemplate(socket, msg.key.remoteJid, {(sanitizedNumber + '@s.whatsapp.net', { 
                 text: `✅ *SILA MD MINI CONNECTED*\n\n🤖 *Bot Name:* SILA MD MINI\n📱 *Your Number:* ${sanitizedNumber}\n⏰ *Connected At:* ${new Date().toLocaleString()}\n\nUse *.menu* to see all commands!\n\n_Powered by SILA TECH_`
               }); 
             } catch (e) {}
