@@ -1355,6 +1355,41 @@ async function viewOnceCommand(sock, chatId, message) {
     }
 }
 
+// TikTok Command
+async function tiktokCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📱", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📱 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚃𝙸𝙺𝚃𝙾𝙺 𝚄𝚁𝙻*\n\n*Example:* .tiktok https://vm.tiktok.com/xyz'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙸𝙺𝚃𝙾𝙺 𝚅𝙸𝙳𝙴𝙾...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.tiktok}${encodeURIComponent(url)}`);
+        const videoUrl = response.data?.result?.video || response.data?.video;
+
+        if (!videoUrl) {
+            throw new Error('No video found');
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            video: { url: videoUrl },
+            caption: '📱 *𝚃𝙸𝙺𝚃𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙸𝙺𝚃𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*'
+        }, message);
+    }
+}
+
 // Owner Command
 async function ownerCommand(sock, chatId, message) {
     try {
