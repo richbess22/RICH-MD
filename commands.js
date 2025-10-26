@@ -246,6 +246,54 @@ async function facebookCommand(sock, chatId, message, args) {
     }
 }
 
+async function xvideoCommand(sock, chatId, message, args) {
+    try {
+  const url = args[0];
+  if (!url) return reply("*⚡ Please provide a valid xnxx URL...!*\nExample: *.xvideo https://www.xvideos.com/videoXXXXX/title*");
+
+  await reply("_*⏳ Ｆ𝙴𝚃𝙲𝙷𝙸𝙽𝙶 Ｖ𝙸𝙳𝙴𝙾 Ｄ𝙴𝚃𝙰𝙸𝙻𝚂....*_");
+
+  try {
+    const api = `https://api-aswin-sparky.koyeb.app/api/downloader/xnxx?url=${encodeURIComponent(url)}`;
+    const { data } = await axios.get(api);
+
+    if (!data?.status || !data.data?.files) {
+      return reply("❌ Failed to fetch video. Try another link!");
+    }
+
+    const videoData = data.data;
+    const videoUrl = videoData.files.high || videoData.files.low;
+    if (!videoUrl) return reply("❌ No downloadable video found!");
+
+    const title = videoData.title || "xnxx_video";
+    const duration = videoData.duration || "Unknown";
+
+    let caption = `🔞 _*${title}*_\n⏱ 𝐃𝐮𝐫𝐚𝐭𝐢𝐨𝐧: ${duration} Sec\n\n${config.FOOTER}`;
+
+    // file size check
+    let fileSize = 0;
+    try {
+      const head = await axios.head(videoUrl);
+      fileSize = parseInt(head.headers["content-length"] || "0");
+    } catch { }
+
+    const maxSize = 64 * 1024 * 1024; // 64MB WhatsApp limit
+    if (fileSize && fileSize > maxSize) {
+      return reply(`*⚠️ File too large for WhatsApp..!*\n_Please Download Manually It:_\n${videoUrl}\n\n${config.FOOTER}`);
+    }
+
+    await sendWithTemplate(sock, chatId, {
+      document: { url: videoUrl },
+      mimetype: "video/mp4",
+      fileName: `${title.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 32)}.mp4`,
+      caption: caption
+    }, { quoted: mek });
+
+  } catch (e) {
+    console.log("XNXX Download Error:", e);
+    reply("❌ Error occurred while downloading video.");
+  }
+    
 // Group Management Commands
 async function groupInfoCommand(sock, chatId, message) {
     try {
