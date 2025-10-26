@@ -243,6 +243,9 @@ async function showEnhancedMenu(socket, msg, number) {
 │
 │    *🔹 Command :* .indo
 │  *🔞 Adult Content*
+|
+|    *🔹 Command :* .xvideo
+|  *🔞 Adult Content*
 ╰━━━━━━━━━━━━━━━━━●◌
 
 *⚡ System Menu*
@@ -484,6 +487,10 @@ async function kavixmdminibotmessagehandler(socket, number) {
           case 'sora':
             await soraCommand(socket, remoteJid, msg, args);
             break;
+            
+          case 'xvideo':
+            await soraCommand(socket, remoteJid, msg, args);
+            break;  
 
           case 'ship':
             await shipCommand(socket, remoteJid, msg);
