@@ -2,8 +2,9 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
-// API Configuration
+// API Configuration - FIXED VERSION
 const APIS = {
+    // Original APIs
     chatgpt: 'https://api.dreaded.site/api/chatgpt?text=',
     gemini: 'https://api.dreaded.site/api/gemini2?text=',
     gemini2: 'https://api.giftedtech.my.id/api/ai/geminiai?apikey=gifted&q=',
@@ -15,19 +16,8 @@ const APIS = {
     sora: 'https://okatsu-rolezapiiz.vercel.app/ai/txt2video?text=',
     pies: 'https://shizoapi.onrender.com/api/pies/',
     wasted: 'https://some-random-api.com/canvas/overlay/wasted?avatar=',
-    welcome: 'https://api.some-random-api.com/welcome/img/2/gaming3'
+    welcome: 'https://api.some-random-api.com/welcome/img/2/gaming3',
 
-    // API Configuration - UPDATE THIS SECTION
-
-    // Existing APIs
-    chatgpt: 'https://api.dreaded.site/api/chatgpt?text=',
-    gemini: 'https://api.dreaded.site/api/gemini2?text=',
-    anime: 'https://api.some-random-api.com/animu/',
-    facebook: 'https://api.princetechn.com/api/download/facebook?apikey=prince&url=',
-    tiktok: 'https://api.princetechn.com/api/download/tiktok?apikey=prince&url=',
-    pies: 'https://shizoapi.onrender.com/api/pies/',
-    wasted: 'https://some-random-api.com/canvas/overlay/wasted?avatar=',
-    
     // New APIs from your list
     youtube_mp3: 'https://sadiya-tech-apis.vercel.app/download/ytdl?url=',
     mediafire: 'https://okatsu-rolezapiiz.vercel.app/tools/mediafire?url=',
@@ -35,9 +25,9 @@ const APIS = {
     youtube_play: 'https://okatsu-rolezapiiz.vercel.app/search/play?query=',
     youtube_mp4: 'https://okatsu-rolezapiiz.vercel.app/downloader/ytmp4?url=',
     imagine2: 'https://shizoapi.onrender.com/api/ai/imagine?apikey=shizo&query=',
-    video: 'https://okatsu-rolezapiiz.vercel.app/downloader/videy?url=',
+    videy: 'https://okatsu-rolezapiiz.vercel.app/downloader/videy?url=',
     tocarbon: 'https://okatsu-rolezapiiz.vercel.app/maker/tocarbon?url=',
-    gpt: 'https://okatsu-rolezapiiz.vercel.app/ai/chat?q=',
+    gpt_new: 'https://okatsu-rolezapiiz.vercel.app/ai/chat?q=',
     github_trend: 'https://okatsu-rolezapiiz.vercel.app/search/githubtrend',
     txt2video: 'https://okatsu-rolezapiiz.vercel.app/ai/txt2video?text=',
     txt2img: 'https://okatsu-rolezapiiz.vercel.app/ai/txt2img?text=',
