@@ -678,6 +678,35 @@ async function facebookCommand(sock, chatId, message, args) {
     }
 }
 
+// Video Command (Add this function)
+async function videoCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎥", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, { 
+                text: '🎥 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚈𝙾𝚄𝚃𝚄𝙱𝙴 𝚄𝚁𝙻*\n\n*Example:* .video https://youtube.com/watch?v=xxx' 
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾...*'
+        }, message);
+
+        // Add your video download logic here
+        // This is just a placeholder
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝚅𝙸𝙳𝙴𝙾 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳 𝙵𝙴𝙰𝚃𝚄𝚁𝙴 𝙲𝙾𝙼𝙸𝙽𝙶 𝚂𝙾𝙾𝙽*\n\n*𝚂𝚝𝚊𝚢 𝚝𝚞𝚗𝚎𝚍 𝚏𝚘𝚛 𝚞𝚙𝚍𝚊𝚝𝚎𝚜!*'
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾*'
+        }, message);
+    }
+}
+
 // Group Management Commands
 async function groupInfoCommand(sock, chatId, message) {
     try {
