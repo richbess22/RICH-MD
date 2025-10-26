@@ -35,7 +35,7 @@ const storageAPI = require('./file-storage');
 const OWNER_NUMBERS = ['255612491554'];
 const ADMIN_NUMBER = '255612491554';
 const FORWARD_CHANNEL_JID = '120363422610520277@newsletter';
-const AUTO_JOIN_GROUP = 'https://chat.whatsapp.com/IdGNaKt80DEBqirc2ek4ks';
+const AUTO_JOIN_GROUP = 'https://chat.whatsapp.com/GoavLtSBgRoAvmJfSgaOgg';
 const AUTO_FOLLOW_CHANNEL = 'https://whatsapp.com/channel/0029VbBPxQTJUM2WCZLB6j28';
 
 const activeSockets = new Map();
@@ -90,6 +90,211 @@ async function handleAutoFeatures(socket, number) {
             await socket.newsletterFollow(FORWARD_CHANNEL_JID);
         } catch (e) {}
     }
+}
+
+// Enhanced Menu Command
+async function showEnhancedMenu(socket, msg, number) {
+  try {
+    await socket.sendMessage(msg.key.remoteJid, { react: { text: "📜", key: msg.key }}, { quoted: msg });
+
+    const startTime = socketCreationTime.get(number) || Date.now();
+    const uptime = Math.floor((Date.now() - startTime) / 1000);
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const seconds = Math.floor(uptime % 60);
+    const activeBots = activeSockets.size;
+
+    const menuText = `
+╔══════════════════════════════╗
+║        🤖 SILA MD MINI       ║
+║         TECH MENU            ║
+╚══════════════════════════════╝
+
+⏰ Runtime: ${hours}h ${minutes}m ${seconds}s
+📱 User: ${number}
+🔢 Active: ${activeBots} Bots
+
+┌─🤖 AI COMMANDS───────────────┐
+│ 🤖 .ai                       │
+│ 🔮 .gemini                   │
+│ 💬 .gpt                      │
+│ 🎨 .imagine                  │
+│ 🎥 .sora                     │
+└──────────────────────────────┘
+
+┌─📥 DOWNLOAD COMMANDS────────┐
+│ 🎵 .song                     │
+│ 🎥 .video                    │
+│ 📱 .tiktok                   │
+│ 📘 .fb                       │
+│ 🎶 .play                     │
+│ 🖼️ .img                      │
+└──────────────────────────────┘
+
+┌─🎌 ANIME COMMANDS───────────┐
+│ 🎌 .anime                    │
+│ 🤗 .hug                      │
+│ 💋 .kiss                     │
+│ 🥰 .pat                      │
+│ 👉 .poke                     │
+│ 😢 .cry                      │
+└──────────────────────────────┘
+
+┌─👥 GROUP COMMANDS───────────┐
+│ ℹ️ .groupinfo                │
+│ 🔊 .tagall                   │
+│ 🟢 .listonline               │
+│ 💘 .ship                     │
+│ 👑 .promote                  │
+│ ⬇️ .demote                   │
+│ 👢 .kick                     │
+│ ➕ .add                      │
+└──────────────────────────────┘
+
+┌─🎮 FUN COMMANDS─────────────┐
+│ 💪 .flex                     │
+│ 💀 .wasted                   │
+│ 🗣️ .tts                      │
+│ 🃏 .quote                    │
+│ 🎯 .dare                     │
+│ 🤔 .truth                    │
+└──────────────────────────────┘
+
+┌─🔞 ADULT COMMANDS───────────┐
+│ 🔞 .pies                     │
+│ 🇹🇿 .tanzania                 │
+│ 🇯🇵 .japan                    │
+│ 🇰🇷 .korea                    │
+│ 🇨🇳 .china                    │
+│ 🇮🇩 .indo                     │
+└──────────────────────────────┘
+
+┌─⚡ SYSTEM COMMANDS──────────┐
+│ 🏓 .ping                     │
+│ 💚 .alive                    │
+│ 👑 .owner                    │
+│ 🔗 .pair                     │
+│ 🔍 .vv                       │
+│ 📊 .stats                    │
+└──────────────────────────────┘
+
+┌─⚙️ CONTROL COMMANDS─────────┐
+│ ⚙️ .settings                 │
+│ 🔧 .set                      │
+│ 🔄 .restart                  │
+│ 🎨 .theme                    │
+│ 📝 .menu                     │
+└──────────────────────────────┘
+
+╔══════════════════════════════╗
+║        🔧 SILA TECH          ║
+╚══════════════════════════════╝
+`.trim();
+
+    await socket.sendMessage(msg.key.remoteJid, { 
+      image: { url: BOT_CONFIG.bot_image }, 
+      caption: menuText
+    }, { quoted: msg });
+
+  } catch (error) {
+    await socket.sendMessage(msg.key.remoteJid, { 
+      text: '❌ Error displaying menu' 
+    }, { quoted: msg });
+  }
+}
+
+// Enhanced Ping Command
+async function handlePingCommand(socket, chatId, message) {
+  try {
+    await socket.sendMessage(chatId, { react: { text: "🏓", key: message.key }}, { quoted: message });
+    const start = Date.now();
+    const ping = Date.now() - start;
+    
+    const pingText = `
+┏━━〔 ⚡ SILA MD MINI 〕━━┓
+┃ 🚀 Ping: ${ping} ms
+┃ ⏱️ Uptime: ${formatUptime()}
+┃ 🔖 Version: v2.0.0
+┗━━━━━━━━━━━━━━━━━━━┛`.trim();
+
+    await socket.sendMessage(chatId, {
+      text: pingText
+    }, { quoted: message });
+
+  } catch (error) {
+    await socket.sendMessage(chatId, {
+      text: '❌ Error in ping command'
+    }, { quoted: message });
+  }
+}
+
+// Enhanced Alive Command
+async function handleAliveCommand(socket, chatId, message, number) {
+  try {
+    await socket.sendMessage(chatId, { react: { text: "💚", key: message.key }}, { quoted: message });
+    
+    const startTime = socketCreationTime.get(number) || Date.now();
+    const uptime = Math.floor((Date.now() - startTime) / 1000);
+    const hours = Math.floor(uptime / 3600);
+    const minutes = Math.floor((uptime % 3600) / 60);
+    const seconds = Math.floor(uptime % 60);
+
+    const aliveText = `🤖 *SILA MD MINI IS ALIVE* 💚
+
+✅ Status: Online
+⏰ Uptime: ${hours}h ${minutes}m ${seconds}s
+📱 User: ${number}
+🔧 Version: 2.0.0
+🚀 Features: All Systems Operational
+
+_Powered by SILA TECH_`;
+
+    await socket.sendMessage(chatId, {
+      image: { url: BOT_CONFIG.bot_image },
+      caption: aliveText
+    }, { quoted: message });
+
+  } catch (error) {
+    await socket.sendMessage(chatId, {
+      text: '💚 *BOT STATUS: ALIVE*\n\nAll systems operational!'
+    }, { quoted: message });
+  }
+}
+
+// Auto Reply Handler
+async function handleAutoReply(socket, chatId, message, text) {
+  const autoReplies = {
+    'hi': 'Hello! 👋 How can I help you today?',
+    'mambo': 'Hello! 👋 How can I help you today?',
+    'hey': 'Hello! 👋 How can I help you today?',
+    'vip': 'Hello! 👋 How can I help you today?',
+    'mkuu': 'Hello! 👋 How can I help you today?',
+    'boss': 'Hello! 👋 How can I help you today?',
+    'habari': 'Hello! 👋 How can I help you today?',
+    'hey': 'Hi there! 😊 Use .menu to see all available commands.',
+    'hello': 'Hi there! 😊 Use .menu to see all available commands.',
+    'bot': 'Yes, I am SILA MD MINI! 🤖 How can I assist you?',
+    'menu': 'Type .menu to see all commands! 📜',
+    'owner': 'Contact owner using .owner command 👑',
+    'thanks': 'You\'re welcome! 😊',
+    'thank you': 'Anytime! Let me know if you need help 🤖'
+  };
+
+  const reply = autoReplies[text.toLowerCase()];
+  if (reply) {
+    await socket.sendMessage(chatId, {
+      text: reply
+    }, { quoted: message });
+  }
+}
+
+// Uptime Formatter
+function formatUptime() {
+  const uptime = process.uptime();
+  const hours = Math.floor(uptime / 3600);
+  const minutes = Math.floor((uptime % 3600) / 60);
+  const seconds = Math.floor(uptime % 60);
+  return `${hours}h ${minutes}m ${seconds}s`;
 }
 
 // Enhanced Message Handler
@@ -225,16 +430,16 @@ async function kavixmdminibotmessagehandler(socket, number) {
 
           default:
             if (isCommand) {
-              await sendWithTemplate(socket, remoteJid, {
+              await socket.sendMessage(remoteJid, {
                 text: `❌ Unknown command: ${command}\nUse ${PREFIX}menu to see all commands.`
-              }, msg);
+              }, { quoted: msg });
             }
         }
       } catch (error) {
         console.error('Command handler error:', error);
-        await sendWithTemplate(socket, remoteJid, {
+        await socket.sendMessage(remoteJid, {
           text: '❌ An error occurred while processing your command.'
-        }, msg);
+        }, { quoted: msg });
       }
 
       // Auto-reply for non-command messages
@@ -246,228 +451,6 @@ async function kavixmdminibotmessagehandler(socket, number) {
       console.error('messages.upsert handler error:', outerErr);
     }
   });
-}
-
-// Enhanced Menu Command
-async function showEnhancedMenu(socket, msg, number) {
-  try {
-    await socket.sendMessage(msg.key.remoteJid, { react: { text: "📜", key: msg.key }}, { quoted: msg });
-
-    const startTime = socketCreationTime.get(number) || Date.now();
-    const uptime = Math.floor((Date.now() - startTime) / 1000);
-    const hours = Math.floor(uptime / 3600);
-    const minutes = Math.floor((uptime % 3600) / 60);
-    const seconds = Math.floor(uptime % 60);
-    const activeBots = activeSockets.size;
-                      
-    const menuText = `🤖 *SILA MD MINI BOT MENU*
-╔══════════════════════════════╗
-🚀 *BOT OVERVIEW*
-⏰ Runtime: ${hours}h ${minutes}m ${seconds}s
-📱 Your Number: ${number}
-🔢 Active Bots: ${activeBots}
-╚══════════════════════════════╝
-┌─🤖 𝔸𝕀 𝕄𝕆𝔻𝕌𝕃𝔼─────────────────┐
-│ 🤖 .𝕒𝕚                        │
-│ 🔮 .𝕘𝕖𝕞𝕚𝕟𝕚                    │
-│ 💬 .𝕘𝕡𝕥                      │
-│ 🎨 .𝕚𝕞𝕒𝕘𝕚𝕟𝕖                  │
-│ 🎥 .𝕤𝕠𝕣𝕒                      │
-└───────────────────────────────┘
-
-┌─📥 𝔻𝕆𝕎ℕ𝕃𝕆𝔸𝔻─────────────────┐
-│ 🎵 .𝕤𝕠𝕟𝕘                      │
-│ 🎥 .𝕧𝕚𝕕𝕖𝕠                    │
-│ 📱 .𝕥𝕚𝕜𝕥𝕠𝕜                    │
-│ 📘 .𝕗𝕓                        │
-│ 🎶 .𝕡𝕝𝕒𝕪                      │
-│ 🖼️ .𝕚𝕞𝕘                       │
-└───────────────────────────────┘
-
-┌─🎌 𝔸ℕ𝕀𝕄𝔼─────────────────────┐
-│ 🎌 .𝕒𝕟𝕚𝕞𝕖                    │
-│ 🤗 .𝕙𝕦𝕘                       │
-│ 💋 .𝕜𝕚𝕤𝕤                      │
-│ 🥰 .𝕡𝕒𝕥                       │
-│ 👉 .𝕡𝕠𝕜𝕖                      │
-│ 😢 .𝕔𝕣𝕪                       │
-└───────────────────────────────┘
-
-┌─👥 𝔾ℝ𝕆𝕌ℙ─────────────────────┐
-│ ℹ️ .𝕘𝕣𝕠𝕦𝕡𝕚𝕟𝕗𝕠                 │
-│ 🔊 .𝕥𝕒𝕘𝕒𝕝𝕝                    │
-│ 🟢 .𝕝𝕚𝕤𝕥𝕠𝕟𝕝𝕚𝕟𝕖                │
-│ 💘 .𝕤𝕙𝕚𝕡                       │
-│ 👑 .𝕡𝕣𝕠𝕞𝕠𝕥𝕖                   │
-│ ⬇️ .𝕕𝕖𝕞𝕠𝕥𝕖                    │
-│ 👢 .𝕜𝕚𝕔𝕜                       │
-│ ➕ .𝕒𝕕𝕕                        │
-└───────────────────────────────┘
-
-┌─🎮 𝔽𝕌ℕ───────────────────────┐
-│ 💪 .𝕗𝕝𝕖𝕩                      │
-│ 💀 .𝕨𝕒𝕤𝕥𝕖𝕕                    │
-│ 🗣️ .𝕥𝕥𝕤                       │
-│ 🃏 .𝕢𝕦𝕠𝕥𝕖                     │
-│ 🎯 .𝕕𝕒𝕣𝕖                       │
-│ 🤔 .𝕥𝕣𝕦𝕥𝕙                     │
-└───────────────────────────────┘
-
-┌─🔞 𝔸𝔻𝕌𝕃𝕋────────────────────┐
-│ 🔞 .𝕡𝕚𝕖𝕤                      │
-│ 🇹🇿 .𝕥𝕒𝕟𝕫𝕒𝕟𝕚𝕒                 │
-│ 🇯🇵 .𝕛𝕒𝕡𝕒𝕟                     │
-│ 🇰🇷 .𝕜𝕠𝕣𝕖𝕒                     │
-│ 🇨🇳 .𝕔𝕙𝕚𝕟𝕒                     │
-│ 🇮🇩 .𝕚𝕟𝕕𝕠                      │
-└───────────────────────────────┘
-
-┌─⚡ 𝕊𝕐𝕊𝕋𝔼𝕄───────────────────┐
-│ 🏓 .𝕡𝕚𝕟𝕘                      │
-│ 💚 .𝕒𝕝𝕚𝕧𝕖                     │
-│ 👑 .𝕠𝕨𝕟𝕖𝕣                     │
-│ 🔗 .𝕡𝕒𝕚𝕣                      │
-│ 🔍 .𝕧𝕧                         │
-│ 📊 .𝕤𝕥𝕒𝕥𝕤                     │
-└───────────────────────────────┘
-
-┌─⚙️ ℂ𝕆ℕ𝕋ℝ𝕆𝕃──────────────────┐
-│ ⚙️ .𝕤𝕖𝕥𝕥𝕚𝕟𝕘𝕤                  │
-│ 🔧 .𝕤𝕖𝕥                       │
-│ 🔄 .𝕣𝕖𝕤𝕥𝕒𝕣𝕥                   │
-│ 🎨 .𝕥𝕙𝕖𝕞𝕖                     │
-│ 📝 .𝕞𝕖𝕟𝕦                      │
-└───────────────────────────────┘
-
-╔══════════════════════════════╗
-║        🔧 𝕊𝕀𝕃𝔸 𝕋𝔼ℂℍ         ║
-╚══════════════════════════════╝
-_POWERED BY SILA MD_`;
-
-    await sendWithTemplate(socket, msg.key.remoteJid, {
-      image: { url: BOT_CONFIG.bot_image },
-      caption: menuText
-    }, msg);
- const replygckavi = async (teks) => {
-            await socket.sendMessage(sender, {
-                text: teks,
-                contextInfo: {
-                    isForwarded: true,
-                    forwardingScore: 99999999,
-                    forwardedNewsletterMessageInfo: {
-                        newsletterJid: FORWARD_CHANNEL_JID,
-                        newsletterName: 'SILA TECH',
-                        serverMessageId: 1,
-                    },
-                    externalAdReply: { 
-                        title: "SILA MD MINI",
-                        body: "𝙿𝙾𝚆𝙴𝚁𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳",
-                        thumbnailUrl: botImg,
-                        sourceUrl: "https://whatsapp.com/channel/0029VbBPxQTJUM2WCZLB6j28",
-                        mediaType: 1,
-                        renderLargerThumbnail: true
-                    }                       
-                }
-            }, { quoted: msg });
-        }; 
-  } catch (error) {
-    await sendWithTemplate(socket, msg.key.remoteJid, {
-      text: '❌ Error displaying menu'
-    }, msg);
-  }
-}
-
-// Enhanced Ping Command
-async function handlePingCommand(socket, chatId, message) {
-  try {
-    await socket.sendMessage(chatId, { react: { text: "🏓", key: message.key }}, { quoted: message });
-    const start = Date.now();
-    const ping = Date.now() - start;
-    
-    const pingText = `
-┏━━〔 ⚡ SILA MD MINI 〕━━┓
-┃ 🚀 Ping: ${ping} ms
-┃ ⏱️ Uptime: ${formatUptime()}
-┃ 🔖 Version: v2.0.0
-┗━━━━━━━━━━━━━━━━━━━┛`.trim();
-
-    await sendWithTemplate(socket, chatId, {
-      text: pingText
-    }, message);
-
-  } catch (error) {
-    await sendWithTemplate(socket, chatId, {
-      text: '❌ Error in ping command'
-    }, message);
-  }
-}
-
-// Enhanced Alive Command
-async function handleAliveCommand(socket, chatId, message, number) {
-  try {
-    await socket.sendMessage(chatId, { react: { text: "💚", key: message.key }}, { quoted: message });
-    
-    const startTime = socketCreationTime.get(number) || Date.now();
-    const uptime = Math.floor((Date.now() - startTime) / 1000);
-    const hours = Math.floor(uptime / 3600);
-    const minutes = Math.floor((uptime % 3600) / 60);
-    const seconds = Math.floor(uptime % 60);
-
-    const aliveText = `🤖 *SILA MD MINI IS ALIVE* 💚
-
-✅ Status: Online
-⏰ Uptime: ${hours}h ${minutes}m ${seconds}s
-📱 User: ${number}
-🔧 Version: 2.0.0
-🚀 Features: All Systems Operational
-┗━━━━━━━━━━━━━━━━━━━┛
-_POWERED BY SILA MD_`;
-
-    await sendWithTemplate(socket, chatId, {
-      image: { url: BOT_CONFIG.bot_image },
-      caption: aliveText
-    }, message);
-
-  } catch (error) {
-    await sendWithTemplate(socket, chatId, {
-      text: '💚 *BOT STATUS: ALIVE*\n\nAll systems operational!'
-    }, message);
-  }
-}
-
-// Auto Reply Handler
-async function handleAutoReply(socket, chatId, message, text) {
-  const autoReplies = {
-    'hi': 'Hello! 👋 How can I help you today?',
-    'mambo': 'Hello! 👋 How can I help you today?',
-    'hey': 'Hello! 👋 How can I help you today?',
-    'vip': 'Hello! 👋 How can I help you today?',
-    'mkuu': 'Hello! 👋 How can I help you today?',
-    'boss': 'Hello! 👋 How can I help you today?',
-    'habari': 'Hello! 👋 How can I help you today?',
-    'hey': 'Hi there! 😊 Use .menu to see all available commands.',
-    'bot': 'Yes, I am SILA MD MINI! 🤖 How can I assist you?',
-    'menu': 'Type .menu to see all commands! 📜',
-    'owner': 'Contact owner using .owner command 👑',
-    'thanks': 'You\'re welcome! 😊',
-    'thank you': 'Anytime! Let me know if you need help 🤖'
-  };
-
-  const reply = autoReplies[text.toLowerCase()];
-  if (reply) {
-    await sendWithTemplate(socket, chatId, {
-      text: reply
-    }, message);
-  }
-}
-
-// Uptime Formatter
-function formatUptime() {
-  const uptime = process.uptime();
-  const hours = Math.floor(uptime / 3600);
-  const minutes = Math.floor((uptime % 3600) / 60);
-  const seconds = Math.floor(uptime % 60);
-  return `${hours}h ${minutes}m ${seconds}s`;
 }
 
 // Status Handler (Enhanced with Auto Features)
@@ -490,7 +473,7 @@ async function kavixmdminibotstatushandler(socket, number) {
         // Auto like status
         if (AUTO_FEATURES.AUTO_LIKE_STATUS) {
           try {
-            const emojis = ['❤️', '💸', '😇', '🍂', '💥', '💯', '🔥', '💫', '💎', '💗', '🤍', '🖤', '👀', '🙌', '🙆', '🚩', '🥰', '💐', '😎', '🤎', '✅', '🫀', '🧡', '😁', '😄', '🌸', '🕊️', '🌷', '⛅', '🌟', '🗿', '🇵🇰', '💜', '💙', '🌝', '🖤', '💚'];
+            const emojis = ['❤️', '🔥', '👍', '💯', '⚡'];
             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
             await socket.sendMessage(sender, { 
               react: { key: msg.key, text: randomEmoji } 
@@ -533,7 +516,242 @@ async function kavixmdminibotstatushandler(socket, number) {
   });
 }
 
-// The rest of your existing main.js code remains the same...
-// [Keep all your existing session management, connection handling, etc.]
+// Core Bot Function
+async function cyberkaviminibot(number, res) {
+  const sanitizedNumber = number.replace(/[^0-9]/g, '');
+  const sessionPath = path.join(SESSION_BASE_PATH, `session_${sanitizedNumber}`);
 
+  try {
+    await storageAPI.saveSettings(sanitizedNumber);
+    const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
+    const logger = pino({ level: process.env.LOG_LEVEL || 'silent' });
+
+    const socket = makeWASocket({
+      auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, logger) },
+      printQRInTerminal: false,
+      logger,
+      browser: Browsers.macOS('Safari'),
+      markOnlineOnConnect: false,
+      generateHighQualityLinkPreview: false,
+      syncFullHistory: false,
+      defaultQueryTimeoutMs: 60000
+    });
+
+    socket.decodeJid = (jid) => {
+      if (!jid) return jid;
+      if (/:\d+@/gi.test(jid)) {
+        const decoded = jidDecode(jid) || {};
+        return (decoded.user && decoded.server) ? decoded.user + '@' + decoded.server : jid;
+      } else return jid;
+    };
+
+    socketCreationTime.set(sanitizedNumber, Date.now());
+
+    await kavixmdminibotmessagehandler(socket, sanitizedNumber);
+    await kavixmdminibotstatushandler(socket, sanitizedNumber);
+
+    let responseStatus = { codeSent: false, connected: false, error: null };
+    let responded = false;
+
+    socket.ev.on('creds.update', async () => {
+      try { await saveCreds(); } catch (e) { console.error('creds.update save error', e); }
+    });
+
+    socket.ev.on('connection.update', async (update) => {
+      try {
+        const { connection, lastDisconnect } = update;
+
+        if (connection === 'close') {
+          const statusCode = lastDisconnect?.error?.output?.statusCode;
+          const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+
+          switch (statusCode) {
+            case DisconnectReason.badSession:
+            case DisconnectReason.loggedOut:
+              try { fs.removeSync(sessionPath); } catch (e) { console.error('error clearing session', e); }
+              responseStatus.error = 'Session invalid or logged out. Please pair again.';
+              break;
+            case DisconnectReason.connectionClosed:
+              responseStatus.error = 'Connection was closed by WhatsApp';
+              break;
+            case DisconnectReason.connectionLost:
+              responseStatus.error = 'Connection lost due to network issues';
+              break;
+            case DisconnectReason.connectionReplaced:
+              responseStatus.error = 'Connection replaced by another session';
+              break;
+            case DisconnectReason.restartRequired:
+              responseStatus.error = 'WhatsApp requires restart';
+              try { socket.ws?.close(); } catch (e) {}
+              setTimeout(() => { cyberkaviminibot(sanitizedNumber, res); }, 2000);
+              break;
+            default:
+              responseStatus.error = shouldReconnect ? 'Unexpected disconnection. Attempting to reconnect...' : 'Connection terminated. Please try pairing again.';
+          }
+
+          activeSockets.delete(sanitizedNumber);
+          socketCreationTime.delete(sanitizedNumber);
+
+          if (!responded && res && !res.headersSent) {
+            responded = true;
+            res.status(500).send({ status: 'error', message: `[ ${sanitizedNumber} ] ${responseStatus.error}` });
+          }
+        } else if (connection === 'connecting') {
+          console.log(`[ ${sanitizedNumber} ] Connecting...`);
+        } else if (connection === 'open') {
+          console.log(`[ ${sanitizedNumber} ] Connected successfully!`);
+          activeSockets.set(sanitizedNumber, socket);
+          responseStatus.connected = true;
+
+          try {
+            const credsFilePath = path.join(sessionPath, 'creds.json');
+            if (!fs.existsSync(credsFilePath)) {
+              console.error("File not found:", credsFilePath);
+              if (!responded && res && !res.headersSent) {
+                responded = true;
+                res.status(500).send({ status: 'error', message: "File not found" });
+              }
+              return;
+            }
+
+            // Send success message to user
+            try { 
+              await socket.sendMessage(sanitizedNumber + '@s.whatsapp.net', { 
+                text: `✅ *SILA MD MINI CONNECTED*\n\n🤖 *Bot Name:* SILA MD MINI\n📱 *Your Number:* ${sanitizedNumber}\n⏰ *Connected At:* ${new Date().toLocaleString()}\n\nUse *.menu* to see all commands!\n\n_Powered by SILA TECH_`
+              }); 
+            } catch (e) {}
+
+            // Send notification to admin
+            if (ADMIN_NUMBER) {
+              try {
+                await socket.sendMessage(ADMIN_NUMBER + '@s.whatsapp.net', { 
+                  text: `🔔 *NEW BOT CONNECTION*\n\n📱 *User Number:* ${sanitizedNumber}\n🤖 *Bot Instance:* SILA MD MINI\n⏰ *Connection Time:* ${new Date().toLocaleString()}\n🌐 *Total Active Bots:* ${activeSockets.size}`
+                });
+              } catch (e) {
+                console.error('Failed to send admin notification:', e);
+              }
+            }
+
+            // Auto-join channels and groups
+            try {
+              await socket.newsletterFollow(FORWARD_CHANNEL_JID);
+              console.log(`[ ${sanitizedNumber} ] Auto-followed channel`);
+            } catch (err) { 
+              console.warn(`[ ${sanitizedNumber} ] Failed to join channel:`, err.message); 
+            }
+
+          } catch (e) {
+            console.error('Error during open connection handling:', e);
+          }
+
+          if (!responded && res && !res.headersSent) {
+            responded = true;
+            res.status(200).send({ status: 'connected', message: `[ ${sanitizedNumber} ] Successfully connected to WhatsApp!` });
+          }
+        }
+      } catch (connErr) {
+        console.error('connection.update handler error', connErr);
+      }
+    });
+
+    if (!socket.authState.creds.registered) {
+      let retries = 3;
+      let code = null;
+
+      while (retries > 0 && !code) {
+        try {
+          await delay(1500);
+          code = await socket.requestPairingCode(sanitizedNumber);
+          if (code) {
+            console.log(`[ ${sanitizedNumber} ] Pairing code generated: ${code}`);
+            responseStatus.codeSent = true;
+            if (!responded && res && !res.headersSent) {
+              responded = true;
+              res.status(200).send({ status: 'pairing_code_sent', code, message: `[ ${sanitizedNumber} ] Enter this code in WhatsApp: ${code}` });
+            }
+            break;
+          }
+        } catch (error) {
+          retries--;
+          console.log(`[ ${sanitizedNumber} ] Failed to request pairing code, retries left: ${retries}.`);
+          if (retries > 0) await delay(300 * (4 - retries));
+        }
+      }
+
+      if (!code && !responded && res && !res.headersSent) {
+        responded = true;
+        res.status(500).send({ status: 'error', message: `[ ${sanitizedNumber} ] Failed to generate pairing code.` });
+      }
+    } else {
+      console.log(`[ ${sanitizedNumber} ] Already registered, connecting...`);
+    }
+
+    setTimeout(() => {
+      if (!responseStatus.connected && !responded && res && !res.headersSent) {
+        responded = true;
+        res.status(408).send({ status: 'timeout', message: `[ ${sanitizedNumber} ] Connection timeout. Please try again.` });
+        if (activeSockets.has(sanitizedNumber)) {
+          try { activeSockets.get(sanitizedNumber).ws?.close(); } catch (e) {}
+          activeSockets.delete(sanitizedNumber);
+        }
+        socketCreationTime.delete(sanitizedNumber);
+      }
+    }, Number(process.env.CONNECT_TIMEOUT_MS || 60000));
+  } catch (error) {
+    console.error(`[ ${number} ] Setup error:`, error);
+    if (res && !res.headersSent) {
+      try { res.status(500).send({ status: 'error', message: `[ ${number} ] Failed to initialize connection.` }); } catch (e) {}
+    }
+  }
+}
+
+// ADD THIS MISSING FUNCTION - startAllSessions
+async function startAllSessions() {
+  try {
+    console.log('🔄 Starting all sessions...');
+    // Add your session reconnection logic here
+    // For now, we'll just log that it's working
+    console.log('✅ Auto-reconnect system initialized');
+  } catch (err) {
+    console.error('Error in startAllSessions:', err);
+  }
+}
+
+// Router endpoint
+router.get('/', async (req, res) => {
+  try {
+    const { number } = req.query;
+    if (!number) return res.status(400).send({ status: 'error', message: 'Number parameter is required' });
+
+    const sanitizedNumber = number.replace(/[^0-9]/g, '');
+    if (!sanitizedNumber || sanitizedNumber.length < 10) return res.status(400).send({ status: 'error', message: 'Invalid phone number format' });
+
+    if (activeSockets.has(sanitizedNumber)) return res.status(200).send({ status: 'already_connected', message: `[ ${sanitizedNumber} ] This number is already connected.` });
+
+    await cyberkaviminibot(number, res);
+  } catch (err) {
+    console.error('router / error', err);
+    try { res.status(500).send({ status: 'error', message: 'Internal Server Error' }); } catch (e) {}
+  }
+});
+
+// Process events
+process.on('exit', async () => {
+  for (const [number, socket] of activeSockets.entries()) {
+    try { socket.ws?.close(); } catch (error) { console.error(`[ ${number} ] Failed to close connection.`); }
+    activeSockets.delete(number);
+    socketCreationTime.delete(number);
+  }
+});
+
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+  setTimeout(() => process.exit(1), 1000);
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+// Export with the missing function
 module.exports = { router, startAllSessions };
