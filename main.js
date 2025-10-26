@@ -185,94 +185,170 @@ try {
             await handlePingCommand(socket, remoteJid, msg);
             break;
 
-          case 'alive':
+        case 'alive':
             await handleAliveCommand(socket, remoteJid, msg, sanitizedNumber);
             break;
 
-          case 'freebot':
+        case 'freebot':
             await freebotCommand(socket, remoteJid, msg);
             break;
 
-          case 'owner':
+        case 'owner':
             await ownerCommand(socket, remoteJid, msg);
             break;
 
-          case 'pair':
+        case 'pair':
             await pairCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'ai':
+        case 'ai':
             await aiCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'gemini':
+        case 'gemini':
             await geminiCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'gpt':
+        case 'gpt':
             await gptCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'anime':
+        case 'gptnew':
+            await gptNewCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'gemininew':
+            await geminiNewCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'aiask':
+            await aiAskCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'sila':
+            await silaCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'anime':
             await animeCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'tiktok':
+        case 'animequote':
+            await animeQuoteCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'tiktok':
             await tiktokCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'fb':
-          case 'facebook':
+        case 'fb':
+        case 'facebook':
             await facebookCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'groupinfo':
+        case 'fbnew':
+            await facebookNewCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'song':
+            await songCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'video':
+            await videoCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'play':
+            await playCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'mediafire':
+            await mediafireCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'videy':
+            await videyCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'catbox':
+            await catboxCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'groupinfo':
             await groupInfoCommand(socket, remoteJid, msg);
             break;
 
-          case 'tagall':
+        case 'tagall':
             await tagAllCommand(socket, remoteJid, msg);
             break;
 
-          case 'listonline':
+        case 'listonline':
             await listOnlineCommand(socket, remoteJid, msg);
             break;
 
-          case 'imagine':
+        case 'imagine':
             await imagineCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'sora':
+        case 'imagine2':
+            await imagine2Command(socket, remoteJid, msg, args);
+            break;
+
+        case 'txt2img':
+            await txt2imgCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'sora':
             await soraCommand(socket, remoteJid, msg, args);
             break;
             
-          case 'xvideo':
+        case 'xvideo':
             await soraCommand(socket, remoteJid, msg, args);
-            break;  
+            break;
 
-          case 'ship':
+        case 'tocarbon':
+            await tocarbonCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'vfc':
+            await vfcCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'ship':
             await shipCommand(socket, remoteJid, msg);
             break;
 
-          case 'wasted':
+        case 'wasted':
             await wastedCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'flex':
+        case 'flex':
             await flexCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'pies':
+        case 'pies':
             await piesCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'tts':
+        case 'tts':
             await ttsCommand(socket, remoteJid, msg, args);
             break;
 
-          case 'vv':
-          case 'viewonce':
+        case 'vv':
+        case 'viewonce':
             await viewOnceCommand(socket, remoteJid, msg);
+            break;
+
+        case 'settings':
+            await settingsCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'jid':
+            await jidCommand(socket, remoteJid, msg, args);
+            break;
+
+        case 'githubtrend':
+            await githubTrendCommand(socket, remoteJid, msg, args);
             break;
 
           default:
