@@ -45,27 +45,54 @@ const AUTO_FEATURES = {
 
 // Utility Functions
 function getChannelInfo() {
-    return {
-        forwardingScore: 999,
-        isForwarded: true,
-        forwardedNewsletterMessageInfo: {
-            newsletterJid: BOT_CONFIG.channel_jid,
-            newsletterName: BOT_CONFIG.channel_name,
-            serverMessageId: -1
-        }
-    };
+    try {
+        return {
+            forwardingScore: 999,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: BOT_CONFIG.channel_jid || '120363422610520277@newsletter',
+                newsletterName: BOT_CONFIG.channel_name || 'SILA TECH',
+                serverMessageId: -1
+            }
+        };
+    } catch (error) {
+        return {
+            forwardingScore: 999,
+            isForwarded: true
+        };
+    }
 }
 
 async function sendWithTemplate(sock, chatId, content, quoted = null) {
-    const messageOptions = {
-        ...content,
-        contextInfo: getChannelInfo()
-    };
-    
-    if (quoted) {
-        return await sock.sendMessage(chatId, messageOptions, { quoted });
+    try {
+        const messageOptions = {
+            ...content
+        };
+        
+        // Add contextInfo only if it's not a status broadcast
+        if (chatId !== 'status@broadcast') {
+            messageOptions.contextInfo = getChannelInfo();
+        }
+        
+        if (quoted && quoted.key) {
+            return await sock.sendMessage(chatId, messageOptions, { quoted });
+        } else {
+            return await sock.sendMessage(chatId, messageOptions);
+        }
+    } catch (error) {
+        console.error('sendWithTemplate error:', error);
+        // Fallback to simple send
+        try {
+            if (quoted && quoted.key) {
+                return await sock.sendMessage(chatId, content, { quoted });
+            } else {
+                return await sock.sendMessage(chatId, content);
+            }
+        } catch (fallbackError) {
+            console.error('Fallback send error:', fallbackError);
+            throw fallbackError;
+        }
     }
-    return await sock.sendMessage(chatId, messageOptions);
 }
 
 // Enhanced AI Commands
