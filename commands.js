@@ -246,7 +246,7 @@ async function facebookCommand(sock, chatId, message, args) {
     }
 }
 
-async function xvideoCommand(sock, chatId, message, args) {
+async function videoCommand(sock, chatId, message, args) {
     try {
         const url = args[0];
         if (!url) {
