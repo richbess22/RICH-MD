@@ -248,52 +248,61 @@ async function facebookCommand(sock, chatId, message, args) {
 
 async function xvideoCommand(sock, chatId, message, args) {
     try {
-  const url = args[0];
-  if (!url) return reply("*⚡ Please provide a valid xnxx URL...!*\nExample: *.xvideo https://www.xvideos.com/videoXXXXX/title*");
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, { 
+                text: '*⚡ Please provide a valid xnxx URL...!*\nExample: *.xvideo https://www.example.com/videoxxxxx/title*' 
+            }, message);
+        }
 
-  await reply("_*⏳ Ｆ𝙴𝚃𝙲𝙷𝙸𝙽𝙶 Ｖ𝙸𝙳𝙴𝙾 Ｄ𝙴𝚃𝙰𝙸𝙻𝚂....*_");
+        await sendWithTemplate(sock, chatId, {
+            text: '_*⏳ Ｆ𝙴𝚃𝙲𝙷𝙸𝙽𝙶 Ｖ𝙸𝙳𝙴𝙾 Ｄ𝙴𝚃𝙰𝙸𝙻𝚂....*_'
+        }, message);
 
-  try {
-    const api = `https://api-aswin-sparky.koyeb.app/api/downloader/xnxx?url=${encodeURIComponent(url)}`;
-    const { data } = await axios.get(api);
+        try {
+            const api = `https://api-aswin-sparky.koyeb.app/api/downloader/xnxx?url=${encodeURIComponent(url)}`;
+            const { data } = await axios.get(api);
 
-    if (!data?.status || !data.data?.files) {
-      return reply("❌ Failed to fetch video. Try another link!");
-    }
+            if (!data?.status || !data.data?.files) {
+                return await sendWithTemplate(sock, chatId, {
+                    text: '❌ Failed to fetch xvideo. Try another link!'
+                }, message);
+            }
 
-    const videoData = data.data;
-    const videoUrl = videoData.files.high || videoData.files.low;
-    if (!videoUrl) return reply("❌ No downloadable video found!");
+            const videoData = data.data;
+            const videoUrl = videoData.files.high || videoData.files.low;
+            if (!videoUrl) {
+                return await sendWithTemplate(sock, chatId, {
+                    text: '❌ No downloadable xvideo found!'
+                }, message);
+            }
 
-    const title = videoData.title || "xnxx_video";
-    const duration = videoData.duration || "Unknown";
+            const title = videoData.title || "video";
+            const duration = videoData.duration || "Unknown";
 
-    let caption = `🔞 _*${title}*_\n⏱ 𝐃𝐮𝐫𝐚𝐭𝐢𝐨𝐧: ${duration} Sec\n\n${config.FOOTER}`;
+            const caption = `🔞 _*${title}*_\n⏱ 𝐃𝐮𝐫𝐚𝐭𝐢𝐨𝐧: ${duration} Sec\n\n_Powered by SILA MD MINI_`;
 
-    // file size check
-    let fileSize = 0;
-    try {
-      const head = await axios.head(videoUrl);
-      fileSize = parseInt(head.headers["content-length"] || "0");
-    } catch { }
+            await sendWithTemplate(sock, chatId, {
+                document: { url: videoUrl },
+                mimetype: "video/mp4",
+                fileName: `${title.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 32)}.mp4`,
+                caption: caption
+            }, message);
 
-    const maxSize = 64 * 1024 * 1024; // 64MB WhatsApp limit
-    if (fileSize && fileSize > maxSize) {
-      return reply(`*⚠️ File too large for WhatsApp..!*\n_Please Download Manually It:_\n${videoUrl}\n\n${config.FOOTER}`);
-    }
+        } catch (e) {
+            console.log("Video Download Error:", e);
+            await sendWithTemplate(sock, chatId, {
+                text: '❌ Error occurred while downloading video.'
+            }, message);
+        }
 
-    await sendWithTemplate(sock, chatId, {
-      document: { url: videoUrl },
-      mimetype: "video/mp4",
-      fileName: `${title.replace(/[^a-zA-Z0-9]/g, "_").slice(0, 32)}.mp4`,
-      caption: caption
-    }, { quoted: mek });
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ Error in video command'
+        }, message);
+    }
+}
 
-  } catch (e) {
-    console.log("XNXX Download Error:", e);
-    reply("❌ Error occurred while downloading video.");
-  }
-    
 // Group Management Commands
 async function groupInfoCommand(sock, chatId, message) {
     try {
@@ -306,7 +315,7 @@ async function groupInfoCommand(sock, chatId, message) {
         const adminList = admins.map(admin => `• @${admin.split('@')[0]}`).join('\n');
 
         const infoText = `
-        ╔══════════════════════
+╔══════════════════════
 ║ 🏷️  *GROUP INFORMATION*
 ╠══════════════════════
 ║ 
@@ -347,7 +356,7 @@ async function tagAllCommand(sock, chatId, message) {
             messageText += `@${participant.id.split('@')[0]}\n`;
         });
 
-         await sendWithTemplate(sock, chatId, {
+        await sendWithTemplate(sock, chatId, {
             text: messageText,
             mentions: participants.map(p => p.id)
         }, { quoted: message });
@@ -476,7 +485,7 @@ async function shipCommand(sock, chatId, message) {
         else if (lovePercentage >= 40) loveMessage = 'Maybe... 🤔';
         else loveMessage = 'Not meant to be 😅';
 
-         await sendWithTemplate(sock, chatId, {
+        await sendWithTemplate(sock, chatId, {
             text: `💘 *LOVE CALCULATOR*\n\n@${firstUser.split('@')[0]} ❤️ @${secondUser.split('@')[0]}\n\nLove Score: ${lovePercentage}%\n${loveMessage}`,
             mentions: [firstUser, secondUser]
         }, { quoted: message });
@@ -639,7 +648,7 @@ async function ownerCommand(sock, chatId, message) {
     try {
         const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:SILA MD\nTEL;waid=255612491554:+255612491554\nEND:VCARD`;
 
-         await sendWithTemplate(sock, chatId, {
+        await sendWithTemplate(sock, chatId, {
             contacts: {
                 displayName: "SILA MD",
                 contacts: [{ vcard }]
@@ -693,34 +702,24 @@ async function pairCommand(sock, chatId, message, args) {
 async function flexCommand(sock, chatId, message, args) {
     try {
         const flexItems = [
-    '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n┃         🚀 BOT FEATURES         ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',
-    
-    '╔══════════════════════════════════╗\n║ 🚀 Running on Premium Servers     ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ ⚡ Lightning Fast Responses       ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ 🎨 Advanced AI Capabilities      ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ 📥 Multiple Download Options     ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ 👥 Full Group Management         ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ 🔞 Adult Content Features       ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ 🎮 Gaming & Fun Commands         ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ 🤖 Multiple AI Assistants        ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ 💾 Auto Backup System           ║\n╚══════════════════════════════════╝',
-    
-    '╔══════════════════════════════════╗\n║ 🔒 Secure & Private             ║\n╚══════════════════════════════════╝'
-];
+            '┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓\n┃         🚀 BOT FEATURES         ┃\n┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛',
+            '╔══════════════════════════════════╗\n║ 🚀 Running on Premium Servers     ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ ⚡ Lightning Fast Responses       ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ 🎨 Advanced AI Capabilities      ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ 📥 Multiple Download Options     ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ 👥 Full Group Management         ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ 🔞 Adult Content Features       ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ 🎮 Gaming & Fun Commands         ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ 🤖 Multiple AI Assistants        ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ 💾 Auto Backup System           ║\n╚══════════════════════════════════╝',
+            '╔══════════════════════════════════╗\n║ 🔒 Secure & Private             ║\n╚══════════════════════════════════╝'
+        ];
 
         const selectedFlex = flexItems.sort(() => 0.5 - Math.random()).slice(0, 5);
         
         let flexText = '💪 *SILA MD MINI FLEX*\n\n';
         selectedFlex.forEach((item, index) => {
-            flexText += `✅ ${item}\n`;
+            flexText += `${item}\n`;
         });
         
         flexText += '\n🚀 _Most Powerful WhatsApp Bot_';
@@ -750,6 +749,7 @@ module.exports = {
     // Download Commands
     tiktokCommand,
     facebookCommand,
+    videoCommand,
     
     // Group Commands
     groupInfoCommand,
