@@ -258,19 +258,24 @@ async function groupInfoCommand(sock, chatId, message) {
         const adminList = admins.map(admin => `• @${admin.split('@')[0]}`).join('\n');
 
         const infoText = `
-🤖 *GROUP INFORMATION*
-
-👥 *Group Name:* ${metadata.subject}
-🆔 *Group ID:* ${metadata.id}
-👤 *Total Members:* ${participants.length}
-👑 *Group Owner:* @${owner.split('@')[0]}
-⚡ *Admins (${admins.length}):*
-${adminList}
-
-📝 *Description:*
-${metadata.desc || 'No description available'}
-
-_Powered by SILA MD MINI_`.trim();
+        ╔══════════════════════
+║ 🏷️  *GROUP INFORMATION*
+╠══════════════════════
+║ 
+║ 👥  *Group Name:* ${metadata.subject}
+║ 🆔  *Group ID:* ${metadata.id}
+║ 👤  *Total Members:* ${participants.length}
+║ 👑  *Group Owner:* @${owner.split('@')[0]}
+║ 
+║ ⚡  *Admins (${admins.length}):*
+║ ${adminList}
+║ 
+║ 📝  *Description:*
+║ ${metadata.desc || 'No description available'}
+║ 
+╠══════════════════════
+║ _Powered by SILA MD MINI_
+╚══════════════════════`.trim();
 
         await sendWithTemplate(sock, chatId, {
             text: infoText,
@@ -294,7 +299,7 @@ async function tagAllCommand(sock, chatId, message) {
             messageText += `@${participant.id.split('@')[0]}\n`;
         });
 
-        await sock.sendMessage(chatId, {
+         await sendWithTemplate(sock, chatId, {
             text: messageText,
             mentions: participants.map(p => p.id)
         }, { quoted: message });
@@ -321,7 +326,7 @@ async function listOnlineCommand(sock, chatId, message) {
 
         onlineText += `\nTotal: ${onlineUsers.length} members online`;
 
-        await sock.sendMessage(chatId, {
+        await sendWithTemplate(sock, chatId, {
             text: onlineText,
             mentions: onlineUsers.map(p => p.id)
         }, { quoted: message });
@@ -423,7 +428,7 @@ async function shipCommand(sock, chatId, message) {
         else if (lovePercentage >= 40) loveMessage = 'Maybe... 🤔';
         else loveMessage = 'Not meant to be 😅';
 
-        await sock.sendMessage(chatId, {
+         await sendWithTemplate(sock, chatId, {
             text: `💘 *LOVE CALCULATOR*\n\n@${firstUser.split('@')[0]} ❤️ @${secondUser.split('@')[0]}\n\nLove Score: ${lovePercentage}%\n${loveMessage}`,
             mentions: [firstUser, secondUser]
         }, { quoted: message });
@@ -586,7 +591,7 @@ async function ownerCommand(sock, chatId, message) {
     try {
         const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:SILA MD\nTEL;waid=255612491554:+255612491554\nEND:VCARD`;
 
-        await sock.sendMessage(chatId, {
+         await sendWithTemplate(sock, chatId, {
             contacts: {
                 displayName: "SILA MD",
                 contacts: [{ vcard }]
@@ -640,16 +645,25 @@ async function pairCommand(sock, chatId, message, args) {
 async function flexCommand(sock, chatId, message, args) {
     try {
         const flexItems = [
-            '🚀 Running on Premium Servers',
-            '⚡ Lightning Fast Responses',
-            '🎨 Advanced AI Capabilities',
-            '📥 Multiple Download Options',
-            '👥 Full Group Management',
-            '🔞 Adult Content Features',
-            '🎮 Gaming & Fun Commands',
-            '🤖 Multiple AI Assistants',
-            '💾 Auto Backup System',
-            '🔒 Secure & Private'
+╔══════════════════════════          
+║         🚀 *BOT FEATURES*
+╠══════════════════════════
+║
+║ 🚀 Running on Premium Servers
+║ ⚡ Lightning Fast Responses  
+║ 🎨 Advanced AI Capabilities
+║ 📥 Multiple Download Options
+║ 👥 Full Group Management
+║
+║ 🔞 Adult Content Features
+║ 🎮 Gaming & Fun Commands
+║ 🤖 Multiple AI Assistants
+║ 💾 Auto Backup System
+║ 🔒 Secure & Private
+║
+╠══════════════════════════
+║     _Powered by SILA MD MINI_
+╚══════════════════════════`
         ];
 
         const selectedFlex = flexItems.sort(() => 0.5 - Math.random()).slice(0, 5);
