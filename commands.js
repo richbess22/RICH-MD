@@ -602,6 +602,42 @@ async function soraCommand(sock, chatId, message, args) {
     }
 }
 
+// Facebook Command
+async function facebookCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📘", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📘 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚄𝚁𝙻*\n\n*Example:* .fb https://facebook.com/xxx'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.facebook}${encodeURIComponent(url)}`);
+        const videoData = response.data;
+
+        if (videoData?.result?.hd || videoData?.result?.sd) {
+            const videoUrl = videoData.result.hd || videoData.result.sd;
+            await sendWithTemplate(sock, chatId, {
+                video: { url: videoUrl },
+                caption: '📘 *𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+            }, message);
+        } else {
+            throw new Error('No video found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*'
+        }, message);
+    }
+}
+
 // Videy Download Command
 async function videyCommand(sock, chatId, message, args) {
     try {
