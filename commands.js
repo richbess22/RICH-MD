@@ -18,6 +18,37 @@ const APIS = {
     welcome: 'https://api.some-random-api.com/welcome/img/2/gaming3'
 };
 
+// API Configuration - UPDATE THIS SECTION
+const APIS = {
+    // Existing APIs
+    chatgpt: 'https://api.dreaded.site/api/chatgpt?text=',
+    gemini: 'https://api.dreaded.site/api/gemini2?text=',
+    anime: 'https://api.some-random-api.com/animu/',
+    facebook: 'https://api.princetechn.com/api/download/facebook?apikey=prince&url=',
+    tiktok: 'https://api.princetechn.com/api/download/tiktok?apikey=prince&url=',
+    pies: 'https://shizoapi.onrender.com/api/pies/',
+    wasted: 'https://some-random-api.com/canvas/overlay/wasted?avatar=',
+    
+    // New APIs from your list
+    youtube_mp3: 'https://sadiya-tech-apis.vercel.app/download/ytdl?url=',
+    mediafire: 'https://okatsu-rolezapiiz.vercel.app/tools/mediafire?url=',
+    mediafire_search: 'https://okatsu-rolezapiiz.vercel.app/search/mediafire?query=',
+    youtube_play: 'https://okatsu-rolezapiiz.vercel.app/search/play?query=',
+    youtube_mp4: 'https://okatsu-rolezapiiz.vercel.app/downloader/ytmp4?url=',
+    imagine2: 'https://shizoapi.onrender.com/api/ai/imagine?apikey=shizo&query=',
+    video: 'https://okatsu-rolezapiiz.vercel.app/downloader/videy?url=',
+    tocarbon: 'https://okatsu-rolezapiiz.vercel.app/maker/tocarbon?url=',
+    gpt: 'https://okatsu-rolezapiiz.vercel.app/ai/chat?q=',
+    github_trend: 'https://okatsu-rolezapiiz.vercel.app/search/githubtrend',
+    txt2video: 'https://okatsu-rolezapiiz.vercel.app/ai/txt2video?text=',
+    txt2img: 'https://okatsu-rolezapiiz.vercel.app/ai/txt2img?text=',
+    gemini_new: 'https://okatsu-rolezapiiz.vercel.app/ai/gemini?q=',
+    facebook_new: 'https://okatsu-rolezapiiz.vercel.app/downloader/facebook?url=',
+    anime_quote: 'https://okatsu-rolezapiiz.vercel.app/anime/quote',
+    sila: 'https://okatsu-rolezapiiz.vercel.app/ai/ask?q=',
+    catbox: 'https://catbox.moe/user/api.php'
+};
+
 // Bot Configuration
 const BOT_CONFIG = {
     admin: '255612491554',
@@ -226,71 +257,110 @@ async function animeCommand(sock, chatId, message, args) {
 }
 
 // Download Commands
-async function tiktokCommand(sock, chatId, message, args) {
+async function songCommand(sock, chatId, message, args) {
     try {
-        await sock.sendMessage(chatId, { react: { text: "📱", key: message.key }}, { quoted: message });
+        await sock.sendMessage(chatId, { react: { text: "🎵", key: message.key }}, { quoted: message });
         
         const url = args[0];
         if (!url) {
             return await sendWithTemplate(sock, chatId, {
-                text: '📱 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚃𝙸𝙺𝚃𝙾𝙺 𝚄𝚁𝙻*\n\n*Example:* .tiktok https://vm.tiktok.com/xyz'
+                text: '🎵 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚈𝙾𝚄𝚃𝚄𝙱𝙴 𝚄𝚁𝙻*\n\n*Example:* .song https://youtube.com/watch?v=xxx'
             }, message);
         }
 
         await sendWithTemplate(sock, chatId, {
-            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙸𝙺𝚃𝙾𝙺 𝚅𝙸𝙳𝙴𝙾...*'
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚂𝙾𝙽𝙶...*'
         }, message);
 
-        const response = await axios.get(`${APIS.tiktok}${encodeURIComponent(url)}`);
-        const videoUrl = response.data?.result?.video || response.data?.video;
+        const response = await axios.get(`${APIS.youtube_mp3}${encodeURIComponent(url)}&format=mp3&apikey=sadiya`);
+        const audioUrl = response.data?.url || response.data?.result;
 
-        if (!videoUrl) {
-            throw new Error('No video found');
+        if (!audioUrl) {
+            throw new Error('No audio found');
         }
 
         await sendWithTemplate(sock, chatId, {
-            video: { url: videoUrl },
-            caption: '📱 *𝚃𝙸𝙺𝚃𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+            audio: { url: audioUrl },
+            mimetype: 'audio/mpeg',
+            caption: '🎵 *𝚈𝙾𝚄𝚃𝚄𝙱𝙴 𝚂𝙾𝙽𝙶*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
         }, message);
 
     } catch (error) {
         await sendWithTemplate(sock, chatId, {
-            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙸𝙺𝚃𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*'
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚂𝙾𝙽𝙶*'
         }, message);
     }
 }
 
-async function facebookCommand(sock, chatId, message, args) {
+async function playCommand(sock, chatId, message, args) {
     try {
-        await sock.sendMessage(chatId, { react: { text: "📘", key: message.key }}, { quoted: message });
+        await sock.sendMessage(chatId, { react: { text: "🎶", key: message.key }}, { quoted: message });
         
-        const url = args[0];
-        if (!url) {
+        const query = args.join(' ');
+        if (!query) {
             return await sendWithTemplate(sock, chatId, {
-                text: '📘 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚄𝚁𝙻*\n\n*Example:* .fb https://facebook.com/xxx'
+                text: '🎶 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚂𝙾𝙽𝙶 𝙽𝙰𝙼𝙴*\n\n*Example:* .play shape of you'
             }, message);
         }
 
         await sendWithTemplate(sock, chatId, {
-            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾...*'
+            text: '🔍 *𝚂𝙴𝙰𝚁𝙲𝙷𝙸𝙽𝙶 𝚂𝙾𝙽𝙶...*'
         }, message);
 
-        const response = await axios.get(`${APIS.facebook}${encodeURIComponent(url)}`);
-        const videoData = response.data;
+        const response = await axios.get(`${APIS.youtube_play}${encodeURIComponent(query)}`);
+        const songData = response.data;
 
-        if (videoData?.result?.hd || videoData?.result?.sd) {
-            const videoUrl = videoData.result.hd || videoData.result.sd;
+        if (songData?.url || songData?.audio) {
+            const audioUrl = songData.url || songData.audio;
             await sendWithTemplate(sock, chatId, {
-                video: { url: videoUrl },
-                caption: '📘 *𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+                audio: { url: audioUrl },
+                mimetype: 'audio/mpeg',
+                caption: `🎶 *${songData.title || 'Song'}*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
             }, message);
         } else {
-            throw new Error('No video found');
+            throw new Error('No song found');
         }
 
     } catch (error) {
         await sendWithTemplate(sock, chatId, {
-            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*'
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝚂𝙴𝙰𝚁𝙲𝙷𝙸𝙽𝙶 𝚂𝙾𝙽𝙶*'
+        }, message);
+    }
+}
+
+async function mediafireCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📁", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📁 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙼𝙴𝙳𝙸𝙰𝙵𝙸𝚁𝙴 𝚄𝚁𝙻*\n\n*Example:* .mediafire https://mediafire.com/file/xxx'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝚁𝙾𝙼 𝙼𝙴𝙳𝙸𝙰𝙵𝙸𝚁𝙴...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.mediafire}${encodeURIComponent(url)}`);
+        const fileData = response.data;
+
+        if (fileData?.url || fileData?.downloadUrl) {
+            const downloadUrl = fileData.url || fileData.downloadUrl;
+            await sendWithTemplate(sock, chatId, {
+                document: { url: downloadUrl },
+                mimetype: fileData.mimetype || 'application/octet-stream',
+                fileName: fileData.filename || 'download',
+                caption: `📁 *𝙼𝙴𝙳𝙸𝙰𝙵𝙸𝚁𝙴 𝙵𝙸𝙻𝙴*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('No file found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝚁𝙾𝙼 𝙼𝙴𝙳𝙸𝙰𝙵𝙸𝚁𝙴*'
         }, message);
     }
 }
@@ -310,10 +380,18 @@ async function videoCommand(sock, chatId, message, args) {
             text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾...*'
         }, message);
 
-        // Placeholder for video download logic
-        await sendWithTemplate(sock, chatId, {
-            text: '❌ *𝚅𝙸𝙳𝙴𝙾 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳 𝙵𝙴𝙰𝚃𝚄𝚁𝙴 𝙲𝙾𝙼𝙸𝙽𝙶 𝚂𝙾𝙾𝙽*\n\n*𝚂𝚝𝚊𝚢 𝚝𝚞𝚗𝚎𝚍 𝚏𝚘𝚛 𝚞𝚙𝚍𝚊𝚝𝚎𝚜!*'
-        }, message);
+        const response = await axios.get(`${APIS.youtube_mp4}${encodeURIComponent(url)}`);
+        const videoData = response.data;
+
+        if (videoData?.url || videoData?.videoUrl) {
+            const videoUrl = videoData.url || videoData.videoUrl;
+            await sendWithTemplate(sock, chatId, {
+                video: { url: videoUrl },
+                caption: `🎥 *𝚈𝙾𝚄𝚃𝚄𝙱𝙴 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('No video found');
+        }
 
     } catch (error) {
         await sendWithTemplate(sock, chatId, {
@@ -470,6 +548,37 @@ async function imagineCommand(sock, chatId, message, args) {
     }
 }
 
+async function imagine2Command(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎨", key: message.key }}, { quoted: message });
+        
+        const prompt = args.join(' ');
+        if (!prompt) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🎨 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙿𝚁𝙾𝙼𝙿𝚃*\n\n*Example:* .imagine a beautiful sunset over mountains'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🎨 *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝙸𝙼𝙰𝙶𝙴...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.imagine}${encodeURIComponent(prompt)}`, {
+            responseType: 'arraybuffer'
+        });
+
+        await sendWithTemplate(sock, chatId, {
+            image: Buffer.from(response.data),
+            caption: `🎨 *𝙰𝙸 𝙸𝙼𝙰𝙶𝙴*\n\n*𝙿𝚛𝚘𝚖𝚙𝚝:* ${prompt}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝙸𝙼𝙰𝙶𝙴*'
+        }, message);
+    }
+}
+
 async function soraCommand(sock, chatId, message, args) {
     try {
         await sock.sendMessage(chatId, { react: { text: "🎥", key: message.key }}, { quoted: message });
@@ -477,23 +586,583 @@ async function soraCommand(sock, chatId, message, args) {
         const prompt = args.join(' ');
         if (!prompt) {
             return await sendWithTemplate(sock, chatId, {
-                text: '🎥 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙿𝚁𝙾𝙼𝙿𝚃 𝙵𝙾𝚁 𝚅𝙸𝙳𝙴𝙾 𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙾𝙽*\n\n*Example:* .sora anime girl with blue hair'
+                text: '🎥 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙿𝚁𝙾𝙼𝙿𝚃*\n\n*Example:* .sora anime girl with blue hair'
             }, message);
         }
 
         await sendWithTemplate(sock, chatId, {
-            text: '🎥 *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝚅𝙸𝙳𝙴𝙾...*'
+            text: '🎥 *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾...*'
         }, message);
 
-        // Placeholder for video generation
-        await sendWithTemplate(sock, chatId, {
-            text: `🎥 *𝚅𝙸𝙳𝙴𝙾 𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙾𝙽*\n\n*𝙿𝚛𝚘𝚖𝚙𝚝:* "${prompt}"\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
-        }, message);
+        const response = await axios.get(`${APIS.txt2video}${encodeURIComponent(prompt)}`);
+        const videoUrl = response.data?.url || response.data?.videoUrl;
+
+        if (videoUrl) {
+            await sendWithTemplate(sock, chatId, {
+                video: { url: videoUrl },
+                caption: `🎥 *𝙰𝙸 𝚅𝙸𝙳𝙴𝙾*\n\n*𝙿𝚛𝚘𝚖𝚙𝚝:* ${prompt}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('No video generated');
+        }
 
     } catch (error) {
         await sendWithTemplate(sock, chatId, {
             text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾*'
         }, message);
+    }
+}
+
+// Videy Download Command
+async function videyCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📹", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📹 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚅𝙸𝙳𝙴𝚈 𝚄𝚁𝙻*\n\n*Example:* .videy https://videy.co/xxx'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝚁𝙾𝙼 𝚅𝙸𝙳𝙴𝚈...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.videy}${encodeURIComponent(url)}`);
+        const videoData = response.data;
+
+        if (videoData?.url || videoData?.videoUrl) {
+            const videoUrl = videoData.url || videoData.videoUrl;
+            await sendWithTemplate(sock, chatId, {
+                video: { url: videoUrl },
+                caption: `📹 *𝚅𝙸𝙳𝙴𝚈 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('No video found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝚁𝙾𝙼 𝚅𝙸𝙳𝙴𝚈*'
+        }, message);
+    }
+}
+
+// ToCarbon Command
+async function tocarbonCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "💎", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '💎 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰𝙽 𝙸𝙼𝙰𝙶𝙴 𝚄𝚁𝙻*\n\n*Example:* .tocarbon https://example.com/image.jpg'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙲𝙾𝙽𝚅𝙴𝚁𝚃𝙸𝙽𝙶 𝚃𝙾 𝙲𝙰𝚁𝙱𝙾𝙽...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.tocarbon}${encodeURIComponent(url)}`, {
+            responseType: 'arraybuffer'
+        });
+
+        await sendWithTemplate(sock, chatId, {
+            image: Buffer.from(response.data),
+            caption: '💎 *𝙲𝙰𝚁𝙱𝙾𝙽 𝙸𝙼𝙰𝙶𝙴*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙲𝙾𝙽𝚅𝙴𝚁𝚃𝙸𝙽𝙶 𝚃𝙾 𝙲𝙰𝚁𝙱𝙾𝙽*'
+        }, message);
+    }
+}
+
+// GPT Command (New API)
+async function gptNewCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "💬", key: message.key }}, { quoted: message });
+        
+        const query = args.join(' ');
+        if (!query) {
+            return await sendWithTemplate(sock, chatId, { 
+                text: '💬 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚀𝚄𝙴𝚁𝚈*\n\n*Example:* .gptnew explain quantum physics' 
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙰𝚂𝙺𝙸𝙽𝙶 𝙶𝙿𝚃...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.gpt}${encodeURIComponent(query)}`);
+        const gptResponse = response.data?.result || response.data?.response || 'No response from GPT';
+
+        await sendWithTemplate(sock, chatId, {
+            text: `💬 *𝙶𝙿𝚃 𝚁𝙴𝚂𝙿𝙾𝙽𝚂𝙴*\n\n${gptResponse}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙲𝙾𝙽𝙽𝙴𝙲𝚃𝙸𝙽𝙶 𝚃𝙾 𝙶𝙿𝚃*'
+        }, message);
+    }
+}
+
+// GitHub Trending Command
+async function githubTrendCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🐙", key: message.key }}, { quoted: message });
+        
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙵𝙴𝚃𝙲𝙷𝙸𝙽𝙶 𝙶𝙸𝚃𝙷𝚄𝙱 𝚃𝚁𝙴𝙽𝙳𝙸𝙽𝙶...*'
+        }, message);
+
+        const response = await axios.get(APIS.github_trend);
+        const trends = response.data;
+
+        if (trends && Array.isArray(trends) && trends.length > 0) {
+            let trendText = '🐙 *𝙶𝙸𝚃𝙷𝚄𝙱 𝚃𝚁𝙴𝙽𝙳𝙸𝙽𝙶 𝚁𝙴𝙿𝙾𝚂*\n\n';
+            
+            trends.slice(0, 5).forEach((repo, index) => {
+                trendText += `*${index + 1}. ${repo.name}*\n`;
+                trendText += `⭐ *Stars:* ${repo.stars || 'N/A'}\n`;
+                trendText += `📝 *Description:* ${repo.description || 'No description'}\n`;
+                trendText += `🔗 *URL:* ${repo.url || 'N/A'}\n\n`;
+            });
+
+            trendText += '*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*';
+
+            await sendWithTemplate(sock, chatId, {
+                text: trendText
+            }, message);
+        } else {
+            throw new Error('No trends found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙵𝙴𝚃𝙲𝙷𝙸𝙽𝙶 𝙶𝙸𝚃𝙷𝚄𝙱 𝚃𝚁𝙴𝙽𝙳𝚂*'
+        }, message);
+    }
+}
+
+// AI Image Generation (New API)
+async function txt2imgCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🖼️", key: message.key }}, { quoted: message });
+        
+        const prompt = args.join(' ');
+        if (!prompt) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🖼️ *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙿𝚁𝙾𝙼𝙿𝚃*\n\n*Example:* .txt2img a beautiful landscape'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🖼️ *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝙸𝙼𝙰𝙶𝙴...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.txt2img}${encodeURIComponent(prompt)}`, {
+            responseType: 'arraybuffer'
+        });
+
+        await sendWithTemplate(sock, chatId, {
+            image: Buffer.from(response.data),
+            caption: `🖼️ *𝙰𝙸 𝙸𝙼𝙰𝙶𝙴*\n\n*𝙿𝚛𝚘𝚖𝚙𝚝:* ${prompt}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝙸𝙼𝙰𝙶𝙴*'
+        }, message);
+    }
+}
+
+// Gemini Command (New API)
+async function geminiNewCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🔮", key: message.key }}, { quoted: message });
+        
+        const query = args.join(' ');
+        if (!query) {
+            return await sendWithTemplate(sock, chatId, { 
+                text: '🔮 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚀𝚄𝙴𝚁𝚈*\n\n*Example:* .gemininew tell me about mars' 
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙰𝚂𝙺𝙸𝙽𝙶 𝙶𝙴𝙼𝙸𝙽𝙸...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.gemini_new}${encodeURIComponent(query)}`);
+        const geminiResponse = response.data?.result || response.data?.response || 'No response from Gemini';
+
+        await sendWithTemplate(sock, chatId, {
+            text: `🔮 *𝙶𝙴𝙼𝙸𝙽𝙸 𝚁𝙴𝚂𝙿𝙾𝙽𝚂𝙴*\n\n${geminiResponse}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙲𝙾𝙽𝙽𝙴𝙲𝚃𝙸𝙽𝙶 𝚃𝙾 𝙶𝙴𝙼𝙸𝙽𝙸*'
+        }, message);
+    }
+}
+
+// Facebook Downloader (New API)
+async function facebookNewCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📘", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📘 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚄𝚁𝙻*\n\n*Example:* .fbnew https://facebook.com/xxx'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.facebook_new}${encodeURIComponent(url)}`);
+        const videoData = response.data;
+
+        if (videoData?.url || videoData?.videoUrl) {
+            const videoUrl = videoData.url || videoData.videoUrl;
+            await sendWithTemplate(sock, chatId, {
+                video: { url: videoUrl },
+                caption: '📘 *𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+            }, message);
+        } else {
+            throw new Error('No video found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*'
+        }, message);
+    }
+}
+
+// Anime Quote Command
+async function animeQuoteCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎌", key: message.key }}, { quoted: message });
+        
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙵𝙴𝚃𝙲𝙷𝙸𝙽𝙶 𝙰𝙽𝙸𝙼𝙴 𝚀𝚄𝙾𝚃𝙴...*'
+        }, message);
+
+        const response = await axios.get(APIS.anime_quote);
+        const quoteData = response.data;
+
+        if (quoteData) {
+            const quoteText = `🎌 *𝙰𝙽𝙸𝙼𝙴 𝚀𝚄𝙾𝚃𝙴*\n\n"${quoteData.quote || quoteData.text}"\n\n*𝙲𝚑𝚊𝚛𝚊𝚌𝚝𝚎𝚛:* ${quoteData.character || 'Unknown'}\n*𝙰𝚗𝚒𝚖𝚎:* ${quoteData.anime || 'Unknown'}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`;
+
+            await sendWithTemplate(sock, chatId, {
+                text: quoteText
+            }, message);
+        } else {
+            throw new Error('No quote found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙵𝙴𝚃𝙲𝙷𝙸𝙽𝙶 𝙰𝙽𝙸𝙼𝙴 𝚀𝚄𝙾𝚃𝙴*'
+        }, message);
+    }
+}
+
+// Sila Command
+async function silaCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🤖", key: message.key }}, { quoted: message });
+        
+        const query = args.join(' ');
+        if (!query) {
+            return await sendWithTemplate(sock, chatId, { 
+                text: '🤖 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚀𝚄𝙴𝚁𝚈*\n\n*Example:* .aiask what is artificial intelligence?' 
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙰𝚂𝙺𝙸𝙽𝙶 𝙰𝙸...*'
+        }, message);
+
+        const response = await axios.get(`${APIS.sila}${encodeURIComponent(query)}`);
+        const aiResponse = response.data?.result || response.data?.response || 'No response from AI';
+
+        await sendWithTemplate(sock, chatId, {
+            text: `🤖 *𝙰𝙸 𝚁𝙴𝚂𝙿𝙾𝙽𝚂𝙴*\n\n${aiResponse}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙲𝙾𝙽𝙽𝙴𝙲𝚃𝙸𝙽𝙶 𝚃𝙾 𝙰𝙸*'
+        }, message);
+    }
+}
+
+// Catbox Upload Command
+async function catboxCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📤", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📤 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰𝙽 𝙸𝙼𝙰𝙶𝙴 𝚄𝚁𝙻*\n\n*Example:* .catbox https://example.com/image.jpg'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝚄𝙿𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙾 𝙲𝙰𝚃𝙱𝙾𝚇...*'
+        }, message);
+
+        const formData = new FormData();
+        formData.append('url', url);
+
+        const response = await axios.post(APIS.catbox, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        const catboxUrl = response.data;
+
+        if (catboxUrl) {
+            await sendWithTemplate(sock, chatId, {
+                text: `📤 *𝙲𝙰𝚃𝙱𝙾𝚇 𝚄𝚁𝙻*\n\n${catboxUrl}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('Upload failed');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝚄𝙿𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙾 𝙲𝙰𝚃𝙱𝙾𝚇*'
+        }, message);
+    }
+}
+
+// Settings Command
+async function settingsCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "⚙️", key: message.key }}, { quoted: message });
+        
+        const settingsText = `⚙️ *𝙱𝙾𝚃 𝚂𝙴𝚃𝚃𝙸𝙽𝙶𝚂*
+
+╭━━━━━━━━━━━━━━━━●◌
+│ *🤖 𝙱𝚘𝚝 𝙽𝚊𝚖𝚎:* 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸
+│ *🔧 𝚅𝚎𝚛𝚜𝚒𝚘𝚗:* 2.0.0
+│ *📱 𝙾𝚠𝚗𝚎𝚛:* +255612491554
+│ *🌐 𝚂𝚝𝚊𝚝𝚞𝚜:* 𝙾𝚗𝚕𝚒𝚗𝚎
+│
+│ *🔄 𝙰𝚞𝚝𝚘 𝙵𝚎𝚊𝚝𝚞𝚛𝚎𝚜:*
+│ • 𝙰𝚞𝚝𝚘 𝚁𝚎𝚊𝚍: ✅
+│ • 𝙰𝚞𝚝𝚘 𝚃𝚢𝚙𝚒𝚗𝚐: ✅
+│ • 𝙰𝚞𝚝𝚘 𝚅𝚒𝚎𝚠 𝚂𝚝𝚊𝚝𝚞𝚜: ✅
+│ • 𝙰𝚞𝚝𝚘 𝙻𝚒𝚔𝚎 𝚂𝚝𝚊𝚝𝚞𝚜: ✅
+│ • 𝙰𝚗𝚝𝚒𝚕𝚒𝚗𝚔: ✅
+│ • 𝙰𝚗𝚝𝚒𝚍𝚎𝚕𝚎𝚝𝚎: ✅
+╰━━━━━━━━━━━━━━━━●◌
+
+*𝚄𝚜𝚎 .𝚜𝚎𝚝 <𝚘𝚙𝚝𝚒𝚘𝚗> <𝚟𝚊𝚕𝚞𝚎> 𝚝𝚘 𝚌𝚑𝚊𝚗𝚐𝚎 𝚜𝚎𝚝𝚝𝚒𝚗𝚐𝚜*
+
+*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`;
+
+        await sendWithTemplate(sock, chatId, {
+            text: settingsText
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙳𝙸𝚂𝙿𝙻𝙰𝚈𝙸𝙽𝙶 𝚂𝙴𝚃𝚃𝙸𝙽𝙶𝚂*'
+        }, message);
+    }
+}
+
+// JID Command
+async function jidCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🆔", key: message.key }}, { quoted: message });
+        
+        let targetJid = chatId;
+        
+        // Check if replying to a message
+        if (message.message?.extendedTextMessage?.contextInfo?.participant) {
+            targetJid = message.message.extendedTextMessage.contextInfo.participant;
+        }
+        // Check if mentioned someone
+        else if (message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.[0]) {
+            targetJid = message.message.extendedTextMessage.contextInfo.mentionedJid[0];
+        }
+
+        const jidText = `🆔 *𝙹𝙸𝙳 𝙸𝙽𝙵𝙾𝚁𝙼𝙰𝚃𝙸𝙾𝙽*
+
+╭━━━━━━━━━━━━━━━━●◌
+│ *𝙹𝙸𝙳:* ${targetJid}
+│ *𝚃𝚢𝚙𝚎:* ${targetJid.endsWith('@g.us') ? '𝙶𝚛𝚘𝚞𝚙' : targetJid.endsWith('@s.whatsapp.net') ? '𝚄𝚜𝚎𝚛' : '𝙲𝚑𝚊𝚗𝚗𝚎𝚕'}
+│ *𝙿𝚊𝚛𝚝𝚜:* ${targetJid.split('@')[0]}
+╰━━━━━━━━━━━━━━━━●◌
+
+*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`;
+
+        await sendWithTemplate(sock, chatId, {
+            text: jidText
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙶𝙴𝚃𝚃𝙸𝙽𝙶 𝙹𝙸𝙳*'
+        }, message);
+    }
+}
+
+// TTS Command
+async function ttsCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🗣️", key: message.key }}, { quoted: message });
+        
+        const text = args.join(' ');
+        if (!text) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🗣️ *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝚃𝙴𝚇𝚃*\n\n*Example:* .tts Hello how are you'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚃𝚃𝚂...*'
+        }, message);
+
+        // Using Google TTS API
+        const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`;
+
+        await sendWithTemplate(sock, chatId, {
+            audio: { url: ttsUrl },
+            mimetype: 'audio/mpeg',
+            caption: `🗣️ *𝚃𝙴𝚇𝚃 𝚃𝙾 𝚂𝙿𝙴𝙴𝙲𝙷*\n\n*𝚃𝚎𝚡𝚝:* ${text}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚃𝚃𝚂*'
+        }, message);
+    }
+}
+
+// VFC Command (Video to File Converter)
+async function vfcCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📹", key: message.key }}, { quoted: message });
+        
+        // Check if replying to a video
+        const quoted = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+        if (!quoted?.videoMessage) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📹 *𝙿𝙻𝙴𝙰𝚂𝙴 𝚁𝙴𝙿𝙻𝚈 𝚃𝙾 𝙰 𝚅𝙸𝙳𝙴𝙾 𝙼𝙴𝚂𝚂𝙰𝙶𝙴*'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙲𝙾𝙽𝚅𝙴𝚁𝚃𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾 𝚃𝙾 𝙵𝙸𝙻𝙴...*'
+        }, message);
+
+        const videoMessage = quoted.videoMessage;
+        const videoUrl = videoMessage.url;
+
+        await sendWithTemplate(sock, chatId, {
+            document: { url: videoUrl },
+            mimetype: 'video/mp4',
+            fileName: 'converted_video.mp4',
+            caption: '📹 *𝚅𝙸𝙳𝙴𝙾 𝙵𝙸𝙻𝙴*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙲𝙾𝙽𝚅𝙴𝚁𝚃𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾*'
+        }, message);
+    }
+}
+// Antilink Function
+function containsURL(str) {
+    const urlRegex = /(https?:\/\/)?([a-z0-9-]+\.)+[a-z]{2,}(\/[^\s]*)?/i;
+    return urlRegex.test(str);
+}
+
+async function Antilink(msg, sock) {
+    try {
+        const jid = msg.key.remoteJid;
+        if (!jid.endsWith('@g.us')) return;
+
+        const SenderMessage = msg.message?.conversation || 
+                             msg.message?.extendedTextMessage?.text || '';
+        if (!SenderMessage || typeof SenderMessage !== 'string') return;
+
+        const sender = msg.key.participant;
+        if (!sender) return;
+        
+        // Skip if sender is bot owner
+        const isOwner = sender.includes('255612491554');
+        if (isOwner) return;
+
+        if (!containsURL(SenderMessage.trim())) return;
+        
+        try {
+            // Delete message
+            await sock.sendMessage(jid, { delete: msg.key });
+
+            // Send warning
+            await sock.sendMessage(jid, { 
+                text: `❌ *𝙻𝙸𝙽𝙺 𝙽𝙾𝚃 𝙰𝙻𝙻𝙾𝚆𝙴𝙳*\n\n@${sender.split('@')[0]} 𝚕𝚒𝚗𝚔𝚜 𝚊𝚛𝚎 𝚗𝚘𝚝 𝚊𝚕𝚕𝚘𝚠𝚎𝚍 𝚑𝚎𝚛𝚎!`,
+                mentions: [sender] 
+            });
+
+        } catch (error) {
+            console.error('Antilink error:', error);
+        }
+    } catch (error) {
+        console.error('Antilink error:', error);
+    }
+}
+// Auto Bio Function
+async function updateAutoBio(sock) {
+    try {
+        const bios = [
+            "🤖 SILA MD MINI IS ACTIVE",
+            "🚀 SILA MD MINI IS LIVE",
+            "💫 POWERED BY SILA TECH",
+            "⚡ SILA MD MINI - MOST POWERFUL BOT",
+            "🎯 SILA MD MINI - PREMIUM FEATURES",
+            "🔥 SILA MD MINI - ONLINE & ACTIVE",
+            "🌟 SILA MD MINI - ADVANCED AI BOT"
+        ];
+        
+        const randomBio = bios[Math.floor(Math.random() * bios.length)];
+        await sock.updateProfileStatus(randomBio);
+        console.log('Auto bio updated:', randomBio);
+    } catch (error) {
+        console.error('Auto bio error:', error);
+    }
+}
+
+// Auto Like Status (Fixed)
+async function handleAutoLikeStatus(sock, msg) {
+    try {
+        if (msg.key.remoteJid === 'status@broadcast') {
+            const emojis = ['😂', '🤣', '❤️', '🔥', '👍', '💯', '⚡'];
+            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            await sock.sendMessage(msg.key.remoteJid, { 
+                react: { text: randomEmoji, key: msg.key } 
+            });
+            console.log('Auto liked status with:', randomEmoji);
+        }
+    } catch (error) {
+        console.error('Auto like status error:', error);
     }
 }
 
@@ -649,34 +1318,6 @@ async function piesCommand(sock, chatId, message, args) {
     } catch (error) {
         await sendWithTemplate(sock, chatId, {
             text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙵𝙴𝚃𝙲𝙷𝙸𝙽𝙶 𝙲𝙾𝙽𝚃𝙴𝙽𝚃*'
-        }, message);
-    }
-}
-
-// Text to Speech Command
-async function ttsCommand(sock, chatId, message, args) {
-    try {
-        await sock.sendMessage(chatId, { react: { text: "🗣️", key: message.key }}, { quoted: message });
-        
-        const text = args.join(' ');
-        if (!text) {
-            return await sendWithTemplate(sock, chatId, {
-                text: '🗣️ *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝚃𝙴𝚇𝚃 𝙵𝙾𝚁 𝚃𝚃𝚂*\n\n*Example:* .tts Hello how are you'
-            }, message);
-        }
-
-        // Using external TTS API
-        const ttsUrl = `https://api.voicerss.org/?key=demo&hl=en-us&src=${encodeURIComponent(text)}`;
-        
-        await sendWithTemplate(sock, chatId, {
-            audio: { url: ttsUrl },
-            mimetype: 'audio/mpeg',
-            caption: `🗣️ *𝚃𝙴𝚇𝚃 𝚃𝙾 𝚂𝙿𝙴𝙴𝙲𝙷*\n\n*𝚃𝚎𝚡𝚝:* ${text}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
-        }, message);
-
-    } catch (error) {
-        await sendWithTemplate(sock, chatId, {
-            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚃𝚃𝚂 𝙰𝚄𝙳𝙸𝙾*'
         }, message);
     }
 }
@@ -847,7 +1488,7 @@ async function freebotCommand(sock, chatId, message) {
     }
 }
 
-// Enhanced Menu Command
+// Enhanced Menu Command with ALL commands
 async function showEnhancedMenu(sock, chatId, message, number, activeBots) {
     try {
         await sock.sendMessage(chatId, { react: { text: "📜", key: message.key }}, { quoted: message });
@@ -880,33 +1521,70 @@ async function showEnhancedMenu(sock, chatId, message, number, activeBots) {
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .gpt
 │  *✨ 𝙲𝚑𝚊𝚝 𝚆𝚒𝚝𝚑 𝙲𝚑𝚊𝚝𝙶𝙿𝚃*
 │
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .imagine
-│  *✨ 𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚎 𝙰𝙸 𝙸𝚖𝚊𝚐𝚎𝚜*
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .gptnew
+│  *✨ 𝙲𝚑𝚊𝚝 𝚆𝚒𝚝𝚑 𝙽𝚎𝚠 𝙶𝙿𝚃*
 │
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .sora
-│  *✨ 𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚎 𝙰𝙸 𝚅𝚒𝚍𝚎𝚘𝚜*
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .gemininew
+│  *✨ 𝙲𝚑𝚊𝚝 𝚆𝚒𝚝𝚑 𝙽𝚎𝚠 𝙶𝚎𝚖𝚒𝚗𝚒*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .aiask
+│  *✨ 𝙰𝚜𝚔 𝙰𝙸 𝙼𝚒𝚜𝚝𝚛𝚊𝚕*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .sila
+│  *✨ 𝚂𝙸𝙻𝙰 𝙰𝙸 𝙲𝚑𝚊𝚝*
 ╰━━━━━━━━━━━━━━━━━●◌
 
 *📥 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙼𝚎𝚗𝚞*
 
 ╭━━━━━━━━━━━━━━━━━●◌
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .song
-│  *⬇️ 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚈𝚘𝚞𝚝𝚞𝚋𝚎 𝚂𝚘𝚗𝚐𝚜*
+│  *🎵 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚈𝚘𝚞𝚝𝚞𝚋𝚎 𝚂𝚘𝚗𝚐𝚜*
 │
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .video
-│  *⬇️ 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚈𝚘𝚞𝚝𝚞𝚋𝚎 𝚅𝚒𝚍𝚎𝚘𝚜*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tiktok
-│  *⬇️ 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚃𝚒𝚔𝚝𝚘𝚔 𝚅𝚒𝚍𝚎𝚘𝚜*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .fb
-│  *⬇️ 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙵𝚊𝚌𝚎𝚋𝚘𝚘𝚔 𝙿𝚘𝚜𝚝𝚜*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .img
-│  *⬇️ 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙸𝚖𝚊𝚐𝚎𝚜 𝙵𝚛𝚘𝚖 𝙶𝚘𝚘𝚐𝚕𝚎*
+│  *🎥 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚈𝚘𝚞𝚝𝚞𝚋𝚎 𝚅𝚒𝚍𝚎𝚘𝚜*
 │
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .play
-│  *⬇️ 𝚂𝚎𝚊𝚛𝚌𝚑 & 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚂𝚘𝚗𝚐𝚜*
+│  *🎶 𝚂𝚎𝚊𝚛𝚌𝚑 & 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚂𝚘𝚗𝚐𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tiktok
+│  *📱 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚃𝚒𝚔𝚝𝚘𝚔 𝚅𝚒𝚍𝚎𝚘𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .fb
+│  *📘 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙵𝚊𝚌𝚎𝚋𝚘𝚘𝚔 𝚅𝚒𝚍𝚎𝚘𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .fbnew
+│  *📘 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙵𝚊𝚌𝚎𝚋𝚘𝚘𝚔 (𝙽𝚎𝚠)*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .mediafire
+│  *📁 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙼𝚎𝚍𝚒𝚊𝚏𝚒𝚛𝚎 𝙵𝚒𝚕𝚎𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .videy
+│  *📹 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚅𝚒𝚍𝚎𝚢 𝚅𝚒𝚍𝚎𝚘𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .catbox
+│  *📤 𝚄𝚙𝚕𝚘𝚊𝚍 𝚃𝚘 𝙲𝚊𝚝𝚋𝚘𝚡*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*🎨 𝙸𝚖𝚊𝚐𝚎 & 𝚅𝚒𝚍𝚎𝚘 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .imagine
+│  *🎨 𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚎 𝙰𝙸 𝙸𝚖𝚊𝚐𝚎𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .imagine2
+│  *🎨 𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚎 𝙰𝙸 𝙸𝚖𝚊𝚐𝚎𝚜 (𝚅2)*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .txt2img
+│  *🖼️ 𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚎 𝙰𝙸 𝙸𝚖𝚊𝚐𝚎 (𝙽𝚎𝚠)*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .sora
+│  *🎥 𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚎 𝙰𝙸 𝚅𝚒𝚍𝚎𝚘*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tocarbon
+│  *💎 𝙲𝚘𝚗𝚟𝚎𝚛𝚝 𝚃𝚘 𝙲𝚊𝚛𝚋𝚘𝚗*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .vfc
+│  *📹 𝚅𝚒𝚍𝚎𝚘 𝚃𝚘 𝙵𝚒𝚕𝚎 𝙲𝚘𝚗𝚟𝚎𝚛𝚝𝚎𝚛*
 ╰━━━━━━━━━━━━━━━━━●◌
 
 *👥 𝙶𝚛𝚘𝚞𝚙 𝙼𝚎𝚗𝚞*
@@ -916,44 +1594,33 @@ async function showEnhancedMenu(sock, chatId, message, number, activeBots) {
 │  *👥 𝚂𝚑𝚘𝚠 𝙶𝚛𝚘𝚞𝚙 𝙸𝚗𝚏𝚘𝚛𝚖𝚊𝚝𝚒𝚘𝚗*
 │
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tagall
-│  *👥 𝙼𝚎𝚗𝚝𝚒𝚘𝚗 𝙰𝚕𝚕 𝙼𝚎𝚖𝚋𝚎𝚛𝚜*
+│  *🔊 𝙼𝚎𝚗𝚝𝚒𝚘𝚗 𝙰𝚕𝚕 𝙼𝚎𝚖𝚋𝚎𝚛𝚜*
 │
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .listonline
-│  *👥 𝚂𝚑𝚘𝚠 𝙾𝚗𝚕𝚒𝚗𝚎 𝙼𝚎𝚖𝚋𝚎𝚛𝚜*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .promote
-│  *👥 𝙿𝚛𝚘𝚖𝚘𝚝𝚎 𝙶𝚛𝚘𝚞𝚙 𝙰𝚍𝚖𝚒𝚗*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .demote
-│  *👥 𝙳𝚎𝚖𝚘𝚝𝚎 𝙶𝚛𝚘𝚞𝚙 𝙰𝚍𝚖𝚒𝚗*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .kick
-│  *👥 𝚁𝚎𝚖𝚘𝚟𝚎 𝙼𝚎𝚖𝚋𝚎𝚛 𝙵𝚛𝚘𝚖 𝙶𝚛𝚘𝚞𝚙*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .add
-│  *👥 𝙰𝚍𝚍 𝙼𝚎𝚖𝚋𝚎𝚛 𝚃𝚘 𝙶𝚛𝚘𝚞𝚙*
+│  *🟢 𝚂𝚑𝚘𝚠 𝙾𝚗𝚕𝚒𝚗𝚎 𝙼𝚎𝚖𝚋𝚎𝚛𝚜*
 ╰━━━━━━━━━━━━━━━━━●◌
 
-*⚡ 𝚂𝚢𝚜𝚝𝚎𝚖 𝙼𝚎𝚗𝚞*
+*🎌 𝙰𝚗𝚒𝚖𝚎 𝙼𝚎𝚗𝚞*
 
 ╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .ping
-│  *⚡ 𝙲𝚑𝚎𝚌𝚔 𝙱𝚘𝚝 𝚂𝚙𝚎𝚎𝚍*
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .anime
+│  *🎌 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙰𝚗𝚒𝚖𝚎 𝙸𝚖𝚊𝚐𝚎𝚜*
 │
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .alive
-│  *⚡ 𝙲𝚑𝚎𝚌𝚔 𝙱𝚘𝚝 𝚂𝚝𝚊𝚝𝚞𝚜*
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .animequote
+│  *🎌 𝙶𝚎𝚝 𝙰𝚗𝚒𝚖𝚎 𝚀𝚞𝚘𝚝𝚎𝚜*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*🎮 𝙵𝚞𝚗 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .ship
+│  *💘 𝙻𝚘𝚟𝚎 𝙲𝚊𝚕𝚌𝚞𝚕𝚊𝚝𝚘𝚛*
 │
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .owner
-│  *⚡ 𝙲𝚘𝚗𝚝𝚊𝚌𝚝 𝙱𝚘𝚝 𝙾𝚠𝚗𝚎𝚛*
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .wasted
+│  *💀 𝚆𝚊𝚜𝚝𝚎𝚍 𝙴𝚏𝚏𝚎𝚌𝚝*
 │
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .pair
-│  *⚡ 𝙿𝚊𝚒𝚛 𝙳𝚎𝚟𝚒𝚌𝚎 𝙲𝚘𝚍𝚎*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .stats
-│  *⚡ 𝚂𝚑𝚘𝚠 𝙱𝚘𝚝 𝚂𝚝𝚊𝚝𝚒𝚜𝚝𝚒𝚌𝚜*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .vv
-│  *⚡ 𝚅𝚒𝚎𝚠 𝙾𝚗𝚌𝚎 𝙼𝚎𝚜𝚜𝚊𝚐𝚎𝚜*
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .flex
+│  *💪 𝙱𝚘𝚝 𝙵𝚎𝚊𝚝𝚞𝚛𝚎𝚜 𝙵𝚕𝚎𝚡*
 ╰━━━━━━━━━━━━━━━━━●◌
 
 *🔞 𝙰𝚍𝚞𝚕𝚝 𝙼𝚎𝚗𝚞*
@@ -981,30 +1648,49 @@ async function showEnhancedMenu(sock, chatId, message, number, activeBots) {
 │  *🔞 𝙰𝚍𝚞𝚕𝚝 𝙲𝚘𝚗𝚝𝚎𝚗𝚝*
 ╰━━━━━━━━━━━━━━━━━●◌
 
-*⚙️ 𝙲𝚘𝚗𝚝𝚛𝚘𝚕 𝙼𝚎𝚗𝚞*
+*⚡ 𝚂𝚢𝚜𝚝𝚎𝚖 𝙼𝚎𝚗𝚞*
 
 ╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .ping
+│  *⚡ 𝙲𝚑𝚎𝚌𝚔 𝙱𝚘𝚝 𝚂𝚙𝚎𝚎𝚍*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .alive
+│  *⚡ 𝙲𝚑𝚎𝚌𝚔 𝙱𝚘𝚝 𝚂𝚝𝚊𝚝𝚞𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .owner
+│  *⚡ 𝙲𝚘𝚗𝚝𝚊𝚌𝚝 𝙱𝚘𝚝 𝙾𝚠𝚗𝚎𝚛*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .pair
+│  *⚡ 𝙿𝚊𝚒𝚛 𝙳𝚎𝚟𝚒𝚌𝚎 𝙲𝚘𝚍𝚎*
+│
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .settings
 │  *⚙️ 𝙱𝚘𝚝 𝚂𝚎𝚝𝚝𝚒𝚗𝚐𝚜*
 │
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .set
-│  *⚙️ 𝙲𝚑𝚊𝚗𝚐𝚎 𝚂𝚎𝚐𝚝𝚝𝚒𝚗𝚐𝚜*
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .jid
+│  *🆔 𝙶𝚎𝚝 𝙹𝙸𝙳 𝙸𝚗𝚏𝚘*
 │
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .restart
-│  *⚙️ 𝚁𝚎𝚜𝚝𝚊𝚛𝚝 𝙱𝚘𝚝*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .theme
-│  *⚙️ 𝙲𝚑𝚊𝚗𝚐𝚎 𝙱𝚘𝚝 𝚃𝚑𝚎𝚖𝚎*
-│
-│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .menu
-│  *⚙️ 𝚂𝚑𝚘𝚠 𝚃𝚑𝚒𝚜 𝙼𝚎𝚗𝚞*
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .vv
+│  *⚡ 𝚅𝚒𝚎𝚠 𝙾𝚗𝚌𝚎 𝙼𝚎𝚜𝚜𝚊𝚐𝚎𝚜*
 ╰━━━━━━━━━━━━━━━━━●◌
 
-*🔗 𝙵𝚛𝚎𝚎 𝙱𝚘𝚝*
+*🔧 𝚄𝚝𝚒𝚕𝚒𝚝𝚢 𝙼𝚎𝚗𝚞*
 
 ╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tts
+│  *🗣️ 𝚃𝚎𝚡𝚝 𝚃𝚘 𝚂𝚙𝚎𝚎𝚌𝚑*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .githubtrend
+│  *🐙 𝙶𝚒𝚝𝙷𝚞𝚋 𝚃𝚛𝚎𝚗𝚍𝚒𝚗𝚐*
+│
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .freebot
 │  *🤖 𝙶𝚎𝚝 𝙵𝚛𝚎𝚎 𝙱𝚘𝚝 𝙻𝚒𝚗𝚔*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*⚙️ 𝙲𝚘𝚗𝚝𝚛𝚘𝚕 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .menu
+│  *⚙️ 𝚂𝚑𝚘𝚠 𝚃𝚑𝚒𝚜 𝙼𝚎𝚗𝚞*
 ╰━━━━━━━━━━━━━━━━━●◌
 
 > *➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`;
@@ -1100,6 +1786,10 @@ module.exports = {
     aiCommand,
     geminiCommand,
     gptCommand,
+    silaCommand,
+    gptNewCommand,
+    geminiNewCommand,
+    aiAskCommand,
     
     // Menu Command
     showEnhancedMenu,
@@ -1110,14 +1800,23 @@ module.exports = {
     freebotCommand,
     ownerCommand,
     pairCommand,
+    settingsCommand,
+    jidCommand,
     
     // Anime Commands
     animeCommand,
+    animeQuoteCommand,
     
     // Download Commands
     tiktokCommand,
     facebookCommand,
+    facebookNewCommand,
     videoCommand,
+    songCommand,
+    playCommand,
+    mediafireCommand,
+    videyCommand,
+    catboxCommand,
     
     // Group Commands
     groupInfoCommand,
@@ -1126,7 +1825,11 @@ module.exports = {
     
     // Image/Video Generation
     imagineCommand,
+    imagine2Command,
     soraCommand,
+    txt2imgCommand,
+    tocarbonCommand,
+    vfcCommand,
     
     // Fun Commands
     shipCommand,
@@ -1137,6 +1840,13 @@ module.exports = {
     piesCommand,
     ttsCommand,
     viewOnceCommand,
+    githubTrendCommand,
+    
+    // Utility Functions
+    Antilink,
+    containsURL,
+    updateAutoBio,
+    handleAutoLikeStatus,
     
     // Configuration
     BOT_CONFIG,
