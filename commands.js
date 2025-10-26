@@ -16,10 +16,9 @@ const APIS = {
     pies: 'https://shizoapi.onrender.com/api/pies/',
     wasted: 'https://some-random-api.com/canvas/overlay/wasted?avatar=',
     welcome: 'https://api.some-random-api.com/welcome/img/2/gaming3'
-};
 
-// API Configuration - UPDATE THIS SECTION
-const APIS = {
+    // API Configuration - UPDATE THIS SECTION
+
     // Existing APIs
     chatgpt: 'https://api.dreaded.site/api/chatgpt?text=',
     gemini: 'https://api.dreaded.site/api/gemini2?text=',
