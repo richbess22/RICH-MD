@@ -721,7 +721,7 @@ async function cyberkaviminibot(number, res) {
 
             // Send success message to user
             try { 
-              await sendWithTemplate(socket, msg.key.remoteJid, {(sanitizedNumber + '@s.whatsapp.net', { 
+              await socket.sendMessage(sanitizedNumber + '@s.whatsapp.net', { 
                 text: `✅ *SILA MD MINI CONNECTED*\n\n🤖 *Bot Name:* SILA MD MINI\n📱 *Your Number:* ${sanitizedNumber}\n⏰ *Connected At:* ${new Date().toLocaleString()}\n\nUse *.menu* to see all commands!\n\n_Powered by SILA TECH_`
               }); 
             } catch (e) {}
