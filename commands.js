@@ -1778,7 +1778,7 @@ module.exports = {
     silaCommand,
     gptNewCommand,
     geminiNewCommand,
-    aiAskCommand,
+    silaCommand,
     
     // Menu Command
     showEnhancedMenu,
