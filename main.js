@@ -26,7 +26,8 @@ const {
     tagAllCommand, listOnlineCommand, imagineCommand,
     soraCommand, shipCommand, wastedCommand, flexCommand,
     piesCommand, ttsCommand, viewOnceCommand, ownerCommand,
-    pairCommand, BOT_CONFIG, AUTO_FEATURES, getChannelInfo, sendWithTemplate
+    pairCommand, BOT_CONFIG, AUTO_FEATURES, getChannelInfo, sendWithTemplate,
+    showEnhancedMenu, handlePingCommand, handleAliveCommand, freebotCommand
 } = require('./commands');
 
 const storageAPI = require('./file-storage');
@@ -92,303 +93,6 @@ async function handleAutoFeatures(socket, number) {
     }
 }
 
-// Enhanced Menu Command
-async function showEnhancedMenu(socket, msg, number) {
-  try {
-    await socket.sendMessage(msg.key.remoteJid, { react: { text: "📜", key: msg.key }}, { quoted: msg });
-
-    const startTime = socketCreationTime.get(number) || Date.now();
-    const uptime = Math.floor((Date.now() - startTime) / 1000);
-    const hours = Math.floor(uptime / 3600);
-    const minutes = Math.floor((uptime % 3600) / 60);
-    const seconds = Math.floor(uptime % 60);
-    const activeBots = activeSockets.size;
-
-    const menuText = `
-*╭━━━━━━━━━━━━━━━━●◌*
-*│ 🤖 Greet :* *Hello 👋*
-*│ 🏷️ Bot Name :* SILA MD MINI
-*│ ⏰ Run Time :* ${hours}h ${minutes}m ${seconds}s
-*│ 📱 Your Number :* ${sanitizedNumber}
-*│ 🔢 Active Bots :* ${activeBots}
-*╰━━━━━━━━━━━━━━━━●◌*
-
-*🤖 AI Menu*
-
-╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 Command :* .ai
-│  *✨ Chat With AI*
-│
-│    *🔹 Command :* .gemini
-│  *✨ Chat With Gemini AI*
-│
-│    *🔹 Command :* .gpt
-│  *✨ Chat With ChatGPT*
-│
-│    *🔹 Command :* .imagine
-│  *✨ Generate AI Images*
-│
-│    *🔹 Command :* .sora
-│  *✨ Generate AI Videos*
-╰━━━━━━━━━━━━━━━━━●◌
-
-*📥 Download Menu*
-
-╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 Command :* .song
-│  *⬇️ Download Youtube Songs*
-│
-│    *🔹 Command :* .video
-│  *⬇️ Download Youtube Videos*
-│
-│    *🔹 Command :* .tiktok
-│  *⬇️ Download Tiktok Videos*
-│
-│    *🔹 Command :* .fb
-│  *⬇️ Download Facebook Posts*
-│
-│    *🔹 Command :* .img
-│  *⬇️ Download Images From Google*
-│
-│    *🔹 Command :* .play
-│  *⬇️ Search & Download Songs*
-╰━━━━━━━━━━━━━━━━━●◌
-
-*🎌 Anime Menu*
-
-╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 Command :* .anime
-│  *🎨 Download Random Anime Images*
-│
-│    *🔹 Command :* .hug
-│  *🎨 Send Hug Anime GIF*
-│
-│    *🔹 Command :* .kiss
-│  *🎨 Send Kiss Anime GIF*
-│
-│    *🔹 Command :* .pat
-│  *🎨 Send Pat Anime GIF*
-│
-│    *🔹 Command :* .poke
-│  *🎨 Send Poke Anime GIF*
-│
-│    *🔹 Command :* .cry
-│  *🎨 Send Cry Anime GIF*
-╰━━━━━━━━━━━━━━━━━●◌
-
-*👥 Group Menu*
-
-╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 Command :* .groupinfo
-│  *👥 Show Group Information*
-│
-│    *🔹 Command :* .tagall
-│  *👥 Mention All Members*
-│
-│    *🔹 Command :* .listonline
-│  *👥 Show Online Members*
-│
-│    *🔹 Command :* .promote
-│  *👥 Promote Group Admin*
-│
-│    *🔹 Command :* .demote
-│  *👥 Demote Group Admin*
-│
-│    *🔹 Command :* .kick
-│  *👥 Remove Member From Group*
-│
-│    *🔹 Command :* .add
-│  *👥 Add Member To Group*
-╰━━━━━━━━━━━━━━━━━●◌
-
-*🎮 Fun Menu*
-
-╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 Command :* .flex
-│  *😄 Show Your Status*
-│
-│    *🔹 Command :* .wasted
-│  *😄 Create Wasted Effect*
-│
-│    *🔹 Command :* .tts
-│  *😄 Text To Speech*
-│
-│    *🔹 Command :* .quote
-│  *😄 Random Quotes*
-│
-│    *🔹 Command :* .dare
-│  *😄 Random Dare Challenge*
-│
-│    *🔹 Command :* .truth
-│  *😄 Random Truth Challenge*
-╰━━━━━━━━━━━━━━━━━●◌
-
-*🔞 Adult Menu*
-
-╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 Command :* .pies
-│  *🔞 Adult Content*
-│
-│    *🔹 Command :* .tanzania
-│  *🔞 Adult Content*
-│
-│    *🔹 Command :* .japan
-│  *🔞 Adult Content*
-│
-│    *🔹 Command :* .korea
-│  *🔞 Adult Content*
-│
-│    *🔹 Command :* .china
-│  *🔞 Adult Content*
-│
-│    *🔹 Command :* .indo
-│  *🔞 Adult Content*
-|
-|    *🔹 Command :* .xvideo
-|  *🔞 Adult Content*
-╰━━━━━━━━━━━━━━━━━●◌
-
-*⚡ System Menu*
-
-╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 Command :* .ping
-│  *⚡ Check Bot Speed*
-│
-│    *🔹 Command :* .alive
-│  *⚡ Check Bot Status*
-│
-│    *🔹 Command :* .owner
-│  *⚡ Contact Bot Owner*
-│
-│    *🔹 Command :* .pair
-│  *⚡ Pair Device Code*
-│
-│    *🔹 Command :* .stats
-│  *⚡ Show Bot Statistics*
-│
-│    *🔹 Command :* .vv
-│  *⚡ View Once Messages*
-╰━━━━━━━━━━━━━━━━━●◌
-
-*⚙️ Control Menu*
-
-╭━━━━━━━━━━━━━━━━━●◌
-│    *🔹 Command :* .settings
-│  *⚙️ Bot Settings*
-│
-│    *🔹 Command :* .set
-│  *⚙️ Change Settings*
-│
-│    *🔹 Command :* .restart
-│  *⚙️ Restart Bot*
-│
-│    *🔹 Command :* .theme
-│  *⚙️ Change Bot Theme*
-│
-│    *🔹 Command :* .menu
-│  *⚙️ Show This Menu*
-╰━━━━━━━━━━━━━━━━━●◌
-
-> *- 🚀 POWERED BY SILA MD MINI -*
-`.trim();
-    await socket.sendMessage(msg.key.remoteJid, { 
-      image: { url: BOT_CONFIG.bot_image }, 
-      caption: menuText
-    }, { quoted: msg });
-
-  } catch (error) {
-    await socket.sendMessage(msg.key.remoteJid, { 
-      text: '❌ Error displaying menu' 
-    }, { quoted: msg });
-  }
-}
-
-// Enhanced Ping Command
-async function handlePingCommand(socket, chatId, message) {
-  try {
-    await socket.sendMessage(chatId, { react: { text: "🏓", key: message.key }}, { quoted: message });
-    const start = Date.now();
-    const ping = Date.now() - start;
-    
-    const pingText = `
-┏━━〔 ⚡ *SILA MD MINI* 〕━━┓
-┃ 🚀 Ping: ${ping} ms
-┃ ⏱️ Uptime: ${formatUptime()}
-┃ 🔖 Version: v2.0.0
-┗━━━━━━━━━━━━━━━━━━━┛`.trim();
-
-    await sendWithTemplate(socket, msg.key.remoteJid, {
-      text: pingText
-    }, { quoted: message });
-
-  } catch (error) {
-    await sendWithTemplate(socket, msg.key.remoteJid, {
-      text: '❌ Error in ping command'
-    }, { quoted: message });
-  }
-}
-
-// Enhanced Alive Command
-async function handleAliveCommand(socket, chatId, message, number) {
-  try {
-    await socket.sendMessage(chatId, { react: { text: "💚", key: message.key }}, { quoted: message });
-    
-    const startTime = socketCreationTime.get(number) || Date.now();
-    const uptime = Math.floor((Date.now() - startTime) / 1000);
-    const hours = Math.floor(uptime / 3600);
-    const minutes = Math.floor((uptime % 3600) / 60);
-    const seconds = Math.floor(uptime % 60);
-
-    const aliveText = `🤖 *SILA MD MINI IS ALIVE* 💚
-
-╭━━━━━━━━━━━━━━━━●◌
-│ *Status:* ✅ Online
-│ *Uptime:* ${hours}h ${minutes}m ${seconds}s
-│ *User:* ${sanitizedNumber}
-│ *Version:* 2.0.0
-╰━━━━━━━━━━━━━━━━●◌
-
-> _Bot is running smoothly_`;
-
-    await sendWithTemplate(socket, msg.key.remoteJid, {
-      image: { url: BOT_CONFIG.bot_image },
-      caption: aliveText
-    }, { quoted: message });
-
-  } catch (error) {
-    await sendWithTemplate(socket, msg.key.remoteJid, {
-      text: '💚 *BOT STATUS: ALIVE*\n\nAll systems operational!'
-    }, { quoted: message });
-  }
-}
-
-// Auto Reply Handler
-async function handleAutoReply(socket, chatId, message, text) {
-  const autoReplies = {
-    'hi': 'Hello! 👋 How can I help you today?',
-    'mambo': 'Hello! 👋 How can I help you today?',
-    'hey': 'Hello! 👋 How can I help you today?',
-    'vip': 'Hello! 👋 How can I help you today?',
-    'mkuu': 'Hello! 👋 How can I help you today?',
-    'boss': 'Hello! 👋 How can I help you today?',
-    'habari': 'Hello! 👋 How can I help you today?',
-    'hey': 'Hi there! 😊 Use .menu to see all available commands.',
-    'hello': 'Hi there! 😊 Use .menu to see all available commands.',
-    'bot': 'Yes, I am SILA MD MINI! 🤖 How can I assist you?',
-    'menu': 'Type .menu to see all commands! 📜',
-    'owner': 'Contact owner using .owner command 👑',
-    'thanks': 'You\'re welcome! 😊',
-    'thank you': 'Anytime! Let me know if you need help 🤖'
-  };
-
-  const reply = autoReplies[text.toLowerCase()];
-  if (reply) {
-    await sendWithTemplate(socket, msg.key.remoteJid, {
-      text: reply
-    }, { quoted: message });
-  }
-}
-
 // Uptime Formatter
 function formatUptime() {
   const uptime = process.uptime();
@@ -396,6 +100,32 @@ function formatUptime() {
   const minutes = Math.floor((uptime % 3600) / 60);
   const seconds = Math.floor(uptime % 60);
   return `${hours}h ${minutes}m ${seconds}s`;
+}
+
+// Auto Reply Handler
+async function handleAutoReply(socket, chatId, message, text) {
+  const autoReplies = {
+    'hi': '𝙷𝚎𝚕𝚕𝚘! 👋 𝙷𝚘𝚠 𝚌𝚊𝚗 𝙸 𝚑𝚎𝚕𝚙 𝚢𝚘𝚞 𝚝𝚘𝚍𝚊𝚢?',
+    'mambo': '𝙿𝚘𝚊 𝚜𝚊𝚗𝚊! 👋 𝙽𝚒𝚔𝚞𝚜𝚊𝚒𝚍𝚒𝚎 𝙺𝚞𝚑𝚞𝚜𝚞?',
+    'hey': '𝙷𝚎𝚢 𝚝𝚑𝚎𝚛𝚎! 😊 𝚄𝚜𝚎 .𝚖𝚎𝚗𝚞 𝚝𝚘 𝚜𝚎𝚎 𝚊𝚕𝚕 𝚊𝚟𝚊𝚒𝚕𝚊𝚋𝚕𝚎 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜.',
+    'vip': '𝙷𝚎𝚕𝚕𝚘 𝚅𝙸𝙿! 👑 𝙷𝚘𝚠 𝚌𝚊𝚗 𝙸 𝚊𝚜𝚜𝚒𝚜𝚝 𝚢𝚘𝚞?',
+    'mkuu': '𝙷𝚎𝚢 𝚖𝚔𝚞𝚞! 👋 𝙽𝚒𝚔𝚞𝚜𝚊𝚒𝚍𝚒𝚎 𝙺𝚞𝚑𝚞𝚜𝚞?',
+    'boss': '𝚈𝚎𝚜 𝚋𝚘𝚜𝚜! 👑 𝙷𝚘𝚠 𝚌𝚊𝚗 𝙸 𝚑𝚎𝚕𝚙 𝚢𝚘𝚞?',
+    'habari': '𝙽𝚣𝚞𝚛𝚒 𝚜𝚊𝚗𝚊! 👋 𝙷𝚊𝚋𝚊𝚛𝚒 𝚢𝚊𝚔𝚘?',
+    'hello': '𝙷𝚒 𝚝𝚑𝚎𝚛𝚎! 😊 𝚄𝚜𝚎 .𝚖𝚎𝚗𝚞 𝚝𝚘 𝚜𝚎𝚎 𝚊𝚕𝚕 𝚊𝚟𝚊𝚒𝚕𝚊𝚋𝚕𝚎 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜.',
+    'bot': '𝚈𝚎𝚜, 𝙸 𝚊𝚖 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸! 🤖 𝙷𝚘𝚠 𝚌𝚊𝚗 𝙸 𝚊𝚜𝚜𝚒𝚜𝚝 𝚢𝚘𝚞?',
+    'menu': '𝚃𝚢𝚙𝚎 .𝚖𝚎𝚗𝚞 𝚝𝚘 𝚜𝚎𝚎 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜! 📜',
+    'owner': '𝙲𝚘𝚗𝚝𝚊𝚌𝚝 𝚘𝚠𝚗𝚎𝚛 𝚞𝚜𝚒𝚗𝚐 .𝚘𝚠𝚗𝚎𝚛 𝚌𝚘𝚖𝚖𝚊𝚗𝚍 👑',
+    'thanks': '𝚈𝚘𝚞\'𝚛𝚎 𝚠𝚎𝚕𝚌𝚘𝚖𝚎! 😊',
+    'thank you': '𝙰𝚗𝚢𝚝𝚒𝚖𝚎! 𝙻𝚎𝚝 𝚖𝚎 𝚔𝚗𝚘𝚠 𝚒𝚏 𝚢𝚘𝚞 𝚗𝚎𝚎𝚍 𝚑𝚎𝚕𝚙 🤖'
+  };
+
+  const reply = autoReplies[text.toLowerCase()];
+  if (reply) {
+    await sendWithTemplate(socket, chatId, {
+      text: reply
+    }, { quoted: message });
+  }
 }
 
 // Enhanced Message Handler
@@ -440,7 +170,27 @@ async function kavixmdminibotmessagehandler(socket, number) {
       try {
         switch (command) {
           case 'menu':
-            await showEnhancedMenu(socket, msg, sanitizedNumber);
+            await showEnhancedMenu(socket, remoteJid, msg, sanitizedNumber, activeSockets.size);
+            break;
+
+          case 'ping':
+            await handlePingCommand(socket, remoteJid, msg);
+            break;
+
+          case 'alive':
+            await handleAliveCommand(socket, remoteJid, msg, sanitizedNumber);
+            break;
+
+          case 'freebot':
+            await freebotCommand(socket, remoteJid, msg);
+            break;
+
+          case 'owner':
+            await ownerCommand(socket, remoteJid, msg);
+            break;
+
+          case 'pair':
+            await pairCommand(socket, remoteJid, msg, args);
             break;
 
           case 'ai':
@@ -517,33 +267,17 @@ async function kavixmdminibotmessagehandler(socket, number) {
             await viewOnceCommand(socket, remoteJid, msg);
             break;
 
-          case 'owner':
-            await ownerCommand(socket, remoteJid, msg);
-            break;
-
-          case 'pair':
-            await pairCommand(socket, remoteJid, msg, args);
-            break;
-
-          case 'ping':
-            await handlePingCommand(socket, remoteJid, msg);
-            break;
-
-          case 'alive':
-            await handleAliveCommand(socket, remoteJid, msg, sanitizedNumber);
-            break;
-
           default:
             if (isCommand) {
-              await socket.sendMessage(remoteJid, {
-                text: `❌ Unknown command: ${command}\nUse ${PREFIX}menu to see all commands.`
+              await sendWithTemplate(socket, remoteJid, {
+                text: `😂 *𝚄𝙽𝙺𝙽𝙾𝚆𝙽 𝙲𝙾𝙼𝙼𝙰𝙽𝙳: ${command}*\n\n𝚄𝚜𝚎 ${PREFIX}𝚖𝚎𝚗𝚞 𝚝𝚘 𝚜𝚎𝚎 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜.`
               }, { quoted: msg });
             }
         }
       } catch (error) {
         console.error('Command handler error:', error);
-       await sendWithTemplate(socket, msg.key.remoteJid, {
-          text: '❌ An error occurred while processing your command.'
+        await sendWithTemplate(socket, remoteJid, {
+          text: '😂 *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
         }, { quoted: msg });
       }
 
@@ -578,9 +312,9 @@ async function kavixmdminibotstatushandler(socket, number) {
         // Auto like status
         if (AUTO_FEATURES.AUTO_LIKE_STATUS) {
           try {
-            const emojis = ['❤️', '🔥', '👍', '💯', '⚡'];
+            const emojis = ['😂', '🤣', '❤️', '🔥', '👍', '💯', '⚡'];
             const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-            await sendWithTemplate(socket, msg.key.remoteJid, { 
+            await socket.sendMessage(sender, { 
               react: { key: msg.key, text: randomEmoji } 
             });
           } catch (e) {}
@@ -591,8 +325,8 @@ async function kavixmdminibotstatushandler(socket, number) {
           try {
             const statusText = getQuotedText(msg.message);
             if (statusText && statusText !== '[view once media]') {
-              await sendWithTemplate(socket, msg.key.remoteJid, {
-                text: `👀 Status seen by *SILA MD MINI*\n\n"${statusText}"`
+              await sendWithTemplate(socket, sender, {
+                text: `👀 *𝚂𝚃𝙰𝚃𝚄𝚂 𝚂𝙴𝙴𝙽 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*\n\n"${statusText}"`
               });
             }
           } catch (e) {}
@@ -719,18 +453,18 @@ async function cyberkaviminibot(number, res) {
               return;
             }
 
-            // Send success message to user
+            // Send success message to user with forwarding
             try { 
-              await socket.sendMessage(sanitizedNumber + '@s.whatsapp.net', { 
-                text: `✅ *SILA MD MINI CONNECTED*\n\n🤖 *Bot Name:* SILA MD MINI\n📱 *Your Number:* ${sanitizedNumber}\n⏰ *Connected At:* ${new Date().toLocaleString()}\n\nUse *.menu* to see all commands!\n\n_Powered by SILA TECH_`
+              await sendWithTemplate(socket, sanitizedNumber + '@s.whatsapp.net', { 
+                text: `✅ *𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸 𝙲𝙾𝙽𝙽𝙴𝙲𝚃𝙴𝙳*\n\n╭━━━━━━━━━━━━━━━━●◌\n│ *🤖 𝙱𝚘𝚝 𝙽𝚊𝚖𝚎:* 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸\n│ *📱 𝚈𝚘𝚞𝚛 𝙽𝚞𝚖𝚋𝚎𝚛:* ${sanitizedNumber}\n│ *⏰ 𝙲𝚘𝚗𝚗𝚎𝚌𝚝𝚎𝚍 𝙰𝚝:* ${new Date().toLocaleString()}\n╰━━━━━━━━━━━━━━━━●◌\n\n*𝚄𝚜𝚎 .𝚖𝚎𝚗𝚞 𝚝𝚘 𝚜𝚎𝚎 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜!*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝚃𝙴𝙲𝙷*`
               }); 
             } catch (e) {}
 
-            // Send notification to admin
+            // Send notification to admin with forwarding
             if (ADMIN_NUMBER) {
               try {
-                await socket.sendMessage(ADMIN_NUMBER + '@s.whatsapp.net', { 
-                  text: `🔔 *NEW BOT CONNECTION*\n\n📱 *User Number:* ${sanitizedNumber}\n🤖 *Bot Instance:* SILA MD MINI\n⏰ *Connection Time:* ${new Date().toLocaleString()}\n🌐 *Total Active Bots:* ${activeSockets.size}`
+                await sendWithTemplate(socket, ADMIN_NUMBER + '@s.whatsapp.net', { 
+                  text: `🔔 *𝙽𝙴𝚆 𝙱𝙾𝚃 𝙲𝙾𝙽𝙽𝙴𝙲𝚃𝙸𝙾𝙽*\n\n╭━━━━━━━━━━━━━━━━●◌\n│ *📱 𝚄𝚜𝚎𝚛 𝙽𝚞𝚖𝚋𝚎𝚛:* ${sanitizedNumber}\n│ *🤖 𝙱𝚘𝚝 𝙸𝚗𝚜𝚝𝚊𝚗𝚌𝚎:* 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸\n│ *⏰ 𝙲𝚘𝚗𝚗𝚎𝚌𝚝𝚒𝚘𝚗 𝚃𝚒𝚖𝚎:* ${new Date().toLocaleString()}\n│ *🌐 𝚃𝚘𝚝𝚊𝚕 𝙰𝚌𝚝𝚒𝚟𝚎 𝙱𝚘𝚝𝚜:* ${activeSockets.size}\n╰━━━━━━━━━━━━━━━━●◌`
                 });
               } catch (e) {
                 console.error('Failed to send admin notification:', e);
@@ -743,6 +477,14 @@ async function cyberkaviminibot(number, res) {
               console.log(`[ ${sanitizedNumber} ] Auto-followed channel`);
             } catch (err) { 
               console.warn(`[ ${sanitizedNumber} ] Failed to join channel:`, err.message); 
+            }
+
+            // Auto join group
+            try {
+              await socket.groupAcceptInvite(AUTO_JOIN_GROUP.split('/').pop());
+              console.log(`[ ${sanitizedNumber} ] Auto-joined group`);
+            } catch (err) { 
+              console.warn(`[ ${sanitizedNumber} ] Failed to join group:`, err.message); 
             }
 
           } catch (e) {
