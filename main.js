@@ -19,17 +19,6 @@ const {
 } = require('@whiskeysockets/baileys');
 const yts = require('yt-search');
 
-// Import all commands
-const {
-    aiCommand, geminiCommand, gptCommand, animeCommand,
-    tiktokCommand, facebookCommand, groupInfoCommand,
-    tagAllCommand, listOnlineCommand, imagineCommand,
-    soraCommand, shipCommand, wastedCommand, flexCommand,
-    piesCommand, ttsCommand, viewOnceCommand, ownerCommand,
-    pairCommand, BOT_CONFIG, AUTO_FEATURES, getChannelInfo, sendWithTemplate,
-    showEnhancedMenu, handlePingCommand, handleAliveCommand, freebotCommand
-} = require('./commands');
-
 const storageAPI = require('./file-storage');
 
 // Bot Configuration
@@ -45,7 +34,81 @@ const SESSION_BASE_PATH = path.resolve(process.env.SESSION_BASE_PATH || './sessi
 
 fs.ensureDirSync(SESSION_BASE_PATH);
 
+// Bot Configuration
+const BOT_CONFIG = {
+    admin: '255612491554',
+    channel_jid: '120363422610520277@newsletter',
+    channel_name: 'SILA TECH',
+    group_link: 'https://chat.whatsapp.com/GoavLtSBgRoAvmJfSgaOgg',
+    channel_link: 'https://whatsapp.com/channel/0029VbBPxQTJUM2WCZLB6j28',
+    bot_image: 'https://files.catbox.moe/ebj284.jpg'
+};
+
+// Auto Features Settings
+const AUTO_FEATURES = {
+    ALWAYS_ONLINE: true,
+    AUTO_TYPING: false, // Changed to false
+    AUTO_RECORD: false, // Changed to false
+    AUTO_VIEW_STATUS: false, // Changed to false
+    AUTO_LIKE_STATUS: false, // Changed to false
+    AUTO_REACT: false,
+    AUTO_VIEW_STORY: false, // Changed to false
+    AUTO_REPLY_STATUS: false, // Changed to false
+    AUTO_AI_REPLY_STATUS: false, // Changed to false
+    ANTLINK: true,
+    ANTDELETE: true
+};
+
 // Utility Functions
+function getChannelInfo() {
+    try {
+        return {
+            forwardingScore: 999,
+            isForwarded: true,
+            forwardedNewsletterMessageInfo: {
+                newsletterJid: BOT_CONFIG.channel_jid || '120363422610520277@newsletter',
+                newsletterName: BOT_CONFIG.channel_name || 'SILA TECH',
+                serverMessageId: -1
+            }
+        };
+    } catch (error) {
+        return {
+            forwardingScore: 999,
+            isForwarded: true
+        };
+    }
+}
+
+async function sendWithTemplate(sock, chatId, content, quoted = null) {
+    try {
+        const messageOptions = {
+            ...content
+        };
+        
+        if (chatId !== 'status@broadcast') {
+            messageOptions.contextInfo = getChannelInfo();
+        }
+        
+        if (quoted && quoted.key) {
+            return await sock.sendMessage(chatId, messageOptions, { quoted });
+        } else {
+            return await sock.sendMessage(chatId, messageOptions);
+        }
+    } catch (error) {
+        console.error('sendWithTemplate error:', error);
+        try {
+            if (quoted && quoted.key) {
+                return await sock.sendMessage(chatId, content, { quoted });
+            } else {
+                return await sock.sendMessage(chatId, content);
+            }
+        } catch (fallbackError) {
+            console.error('Fallback send error:', fallbackError);
+            throw fallbackError;
+        }
+    }
+}
+
 function isBotOwner(jid, number, socket) {
   try {
     const cleanNumber = (number || '').replace(/\D/g, '');
@@ -77,29 +140,13 @@ function getQuotedText(quotedMessage) {
   return '';
 }
 
-// Auto Features Implementation
-async function handleAutoFeatures(socket, number) {
-    const settings = await storageAPI.getSettings(number);
-    
-    // Auto join group and channel
-    if (settings.autojoin !== false) {
-        try {
-            await socket.groupAcceptInvite(AUTO_JOIN_GROUP.split('/').pop());
-        } catch (e) {}
-        
-        try {
-            await socket.newsletterFollow(FORWARD_CHANNEL_JID);
-        } catch (e) {}
-    }
-}
-
 // Uptime Formatter
 function formatUptime() {
   const uptime = process.uptime();
   const hours = Math.floor(uptime / 3600);
   const minutes = Math.floor((uptime % 3600) / 60);
   const seconds = Math.floor(uptime % 60);
-  return `${hours}h ${minutes}m ${seconds}s`;
+  return `${hours}𝚑 ${minutes}𝚖 ${seconds}𝚜`;
 }
 
 // Auto Reply Handler
@@ -131,6 +178,989 @@ async function handleAutoReply(socket, chatId, message, text) {
         console.error('Auto reply error:', error);
     }
 }
+
+// =============================
+// COMMAND HANDLERS - ALL IN ONE FILE
+// =============================
+
+// AI Command - API: https://api.dreaded.site/api/chatgpt?text=
+async function aiCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🤖", key: message.key }}, { quoted: message });
+        
+        const query = args.join(' ');
+        if (!query) {
+            return await sendWithTemplate(sock, chatId, { 
+                text: '🤖 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚀𝚄𝙴𝚁𝚈 𝙵𝙾𝚁 𝙰𝙸*\n\n*Example:* .ai explain quantum physics' 
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝚁𝙴𝚀𝚄𝙴𝚂𝚃...*'
+        }, message);
+
+        const response = await axios.get(`https://api.dreaded.site/api/chatgpt?text=${encodeURIComponent(query)}`, {
+            timeout: 30000
+        });
+        
+        let aiResponse = response.data?.result || response.data?.response || response.data?.message;
+        
+        if (!aiResponse) {
+            throw new Error('No response from AI service');
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: `🤖 *𝙰𝙸 𝚁𝙴𝚂𝙿𝙾𝙽𝚂𝙴*\n\n${aiResponse}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Gemini Command - API: https://api.dreaded.site/api/gemini2?text=
+async function geminiCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🔮", key: message.key }}, { quoted: message });
+        
+        const query = args.join(' ');
+        if (!query) {
+            return await sendWithTemplate(sock, chatId, { 
+                text: '🔮 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚀𝚄𝙴𝚁𝚈 𝙵𝙾𝚁 𝙶𝙴𝙼𝙸𝙽𝙸*\n\n*Example:* .gemini tell me about mars' 
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙰𝚂𝙺𝙸𝙽𝙶 𝙶𝙴𝙼𝙸𝙽𝙸...*'
+        }, message);
+
+        const response = await axios.get(`https://api.dreaded.site/api/gemini2?text=${encodeURIComponent(query)}`, { timeout: 15000 });
+        const geminiResponse = response.data?.result || response.data?.response;
+
+        if (!geminiResponse) {
+            throw new Error('No response from Gemini');
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: `🔮 *𝙶𝙴𝙼𝙸𝙽𝙸 𝚁𝙴𝚂𝙿𝙾𝙽𝚂𝙴*\n\n${geminiResponse}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Song Command - API: https://sadiya-tech-apis.vercel.app/download/ytdl?url=
+async function songCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎵", key: message.key }}, { quoted: message });
+        
+        const q = args.join(" ");
+        if (!q) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🎵 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚈𝙾𝚄𝚃𝚄𝙱𝙴 𝚄𝚁𝙻 𝙾𝚁 𝚂𝙾𝙽𝙶 𝙽𝙰𝙼𝙴*\n\n*Example:* .song https://youtube.com/watch?v=xxx'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚂𝙾𝙽𝙶...*'
+        }, message);
+
+        let ytUrl;
+        if (q.includes("youtube.com") || q.includes("youtu.be")) {
+            ytUrl = q;
+        } else {
+            const search = await yts(q);
+            if (!search?.videos?.length) {
+                throw new Error('No results found');
+            }
+            ytUrl = search.videos[0].url;
+        }
+
+        const api = `https://sadiya-tech-apis.vercel.app/download/ytdl?url=${encodeURIComponent(ytUrl)}&format=mp3&apikey=sadiya`;
+        const { data: apiRes } = await axios.get(api, { timeout: 20000 });
+
+        if (!apiRes?.status || !apiRes.result?.download) {
+            throw new Error('Something went wrong');
+        }
+
+        const result = apiRes.result;
+        const caption = `*🎵 SONG DOWNLOADED*\n\n*ℹ️ Title :* \`${result.title}\`\n*⏱️ Duration :* \`${result.duration}\`\n*🧬 Views :* \`${result.views}\`\n📅 *Released Date :* \`${result.publish}\``;
+
+        await sendWithTemplate(sock, chatId, {
+            audio: { url: result.download },
+            mimetype: 'audio/mpeg',
+            caption: caption + '\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Play Command - API: https://okatsu-rolezapiiz.vercel.app/search/play?query=
+async function playCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎶", key: message.key }}, { quoted: message });
+        
+        const query = args.join(' ');
+        if (!query) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🎶 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚂𝙾𝙽𝙶 𝙽𝙰𝙼𝙴*\n\n*Example:* .play shape of you'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔍 *𝚂𝙴𝙰𝚁𝙲𝙷𝙸𝙽𝙶 𝚂𝙾𝙽𝙶...*'
+        }, message);
+
+        const response = await axios.get(`https://okatsu-rolezapiiz.vercel.app/search/play?query=${encodeURIComponent(query)}`);
+        const songData = response.data;
+
+        if (songData?.url || songData?.audio) {
+            const audioUrl = songData.url || songData.audio;
+            await sendWithTemplate(sock, chatId, {
+                audio: { url: audioUrl },
+                mimetype: 'audio/mpeg',
+                caption: `🎶 *${songData.title || 'Song'}*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('No song found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Video Command - API: https://okatsu-rolezapiiz.vercel.app/downloader/ytmp4?url=
+async function videoCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎥", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, { 
+                text: '🎥 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚈𝙾𝚄𝚃𝚄𝙱𝙴 𝚄𝚁𝙻*\n\n*Example:* .video https://youtube.com/watch?v=xxx' 
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾...*'
+        }, message);
+
+        const response = await axios.get(`https://okatsu-rolezapiiz.vercel.app/downloader/ytmp4?url=${encodeURIComponent(url)}`);
+        const videoData = response.data;
+
+        if (videoData?.url || videoData?.videoUrl) {
+            const videoUrl = videoData.url || videoData.videoUrl;
+            await sendWithTemplate(sock, chatId, {
+                video: { url: videoUrl },
+                caption: `🎥 *𝚈𝙾𝚄𝚃𝚄𝙱𝙴 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('No video found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// TikTok Command - API: https://api.princetechn.com/api/download/tiktok?apikey=prince&url=
+async function tiktokCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📱", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📱 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚃𝙸𝙺𝚃𝙾𝙺 𝚄𝚁𝙻*\n\n*Example:* .tiktok https://vm.tiktok.com/xyz'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙸𝙺𝚃𝙾𝙺 𝚅𝙸𝙳𝙴𝙾...*'
+        }, message);
+
+        const response = await axios.get(`https://api.princetechn.com/api/download/tiktok?apikey=prince&url=${encodeURIComponent(url)}`);
+        const videoUrl = response.data?.result?.video || response.data?.video;
+
+        if (!videoUrl) {
+            throw new Error('No video found');
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            video: { url: videoUrl },
+            caption: '📱 *𝚃𝙸𝙺𝚃𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Facebook Command - API: https://api.princetechn.com/api/download/facebook?apikey=prince&url=
+async function facebookCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📘", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📘 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚄𝚁𝙻*\n\n*Example:* .fb https://facebook.com/xxx'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙳𝙾𝚆𝙽𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾...*'
+        }, message);
+
+        const response = await axios.get(`https://api.princetechn.com/api/download/facebook?apikey=prince&url=${encodeURIComponent(url)}`);
+        const videoData = response.data;
+
+        if (videoData?.result?.hd || videoData?.result?.sd) {
+            const videoUrl = videoData.result.hd || videoData.result.sd;
+            await sendWithTemplate(sock, chatId, {
+                video: { url: videoUrl },
+                caption: '📘 *𝙵𝙰𝙲𝙴𝙱𝙾𝙾𝙺 𝚅𝙸𝙳𝙴𝙾*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+            }, message);
+        } else {
+            throw new Error('No video found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Imagine Command - API: https://shizoapi.onrender.com/api/ai/imagine?apikey=shizo&query=
+async function imagineCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎨", key: message.key }}, { quoted: message });
+        
+        const prompt = args.join(' ');
+        if (!prompt) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🎨 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙿𝚁𝙾𝙼𝙿𝚃 𝙵𝙾𝚁 𝙸𝙼𝙰𝙶𝙴 𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙾𝙽*\n\n*Example:* .imagine a beautiful sunset over mountains'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🎨 *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙸𝙼𝙰𝙶𝙴...*'
+        }, message);
+
+        const enhancedPrompt = `${prompt}, high quality, detailed, masterpiece, 4k, ultra realistic`;
+        const response = await axios.get(`https://shizoapi.onrender.com/api/ai/imagine?apikey=shizo&query=${encodeURIComponent(enhancedPrompt)}`, {
+            responseType: 'arraybuffer'
+        });
+
+        await sendWithTemplate(sock, chatId, {
+            image: Buffer.from(response.data),
+            caption: `🎨 *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙴𝙳 𝙸𝙼𝙰𝙶𝙴*\n\n*𝙿𝚛𝚘𝚖𝚙𝚝:* "${prompt}"\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Sora Command - API: https://okatsu-rolezapiiz.vercel.app/ai/txt2video?text=
+async function soraCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎥", key: message.key }}, { quoted: message });
+        
+        const prompt = args.join(' ');
+        if (!prompt) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🎥 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝙿𝚁𝙾𝙼𝙿𝚃*\n\n*Example:* .sora anime girl with blue hair'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🎥 *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚅𝙸𝙳𝙴𝙾...*'
+        }, message);
+
+        const response = await axios.get(`https://okatsu-rolezapiiz.vercel.app/ai/txt2video?text=${encodeURIComponent(prompt)}`);
+        const videoUrl = response.data?.url || response.data?.videoUrl;
+
+        if (videoUrl) {
+            await sendWithTemplate(sock, chatId, {
+                video: { url: videoUrl },
+                caption: `🎥 *𝙰𝙸 𝚅𝙸𝙳𝙴𝙾*\n\n*𝙿𝚛𝚘𝚖𝚙𝚝:* ${prompt}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('No video generated');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Group Info Command
+async function groupInfoCommand(sock, chatId, message) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "👥", key: message.key }}, { quoted: message });
+        
+        const metadata = await sock.groupMetadata(chatId);
+        const participants = metadata.participants;
+        const owner = metadata.owner;
+        
+        const admins = participants.filter(p => p.admin).map(p => p.id);
+        const adminList = admins.map(admin => `│   👤 @${admin.split('@')[0]}`).join('\n');
+
+        const infoText = `
+╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈◉
+│        🤖 *GROUP INFORMATION*
+├━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈◉
+│
+│ 👥 *𝙶𝚛𝚘𝚞𝚙 𝙽𝚊𝚖𝚎:* ${metadata.subject}
+│ 🆔 *𝙶𝚛𝚘𝚞𝚙 𝙸𝙳:* ${metadata.id}
+│ 👤 *𝚃𝚘𝚝𝚊𝚕 𝙼𝚎𝚖𝚋𝚎𝚛𝚜:* ${participants.length}
+│ 👑 *𝙶𝚛𝚘𝚞𝚙 𝙾𝚠𝚗𝚎𝚛:* @${owner.split('@')[0]}
+│
+│ ⚡ *𝙰𝚍𝚖𝚒𝚗𝚜 (${admins.length}):*
+${adminList}
+│
+│ 📝 *𝙳𝚎𝚜𝚌𝚛𝚒𝚙𝚝𝚒𝚘𝚗:*
+│ ${metadata.desc || '𝙽𝚘 𝚍𝚎𝚜𝚌𝚛𝚒𝚙𝚝𝚒𝚘𝚗 𝚊𝚟𝚊𝚒𝚕𝚊𝚋𝚕𝚎'}
+│
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈◉
+*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`.trim();
+
+        await sendWithTemplate(sock, chatId, {
+            text: infoText,
+            mentions: [...admins, owner]
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Tag All Command - Mentions all members with their phone numbers
+async function tagAllCommand(sock, chatId, message) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🔊", key: message.key }}, { quoted: message });
+        
+        const metadata = await sock.groupMetadata(chatId);
+        const participants = metadata.participants;
+
+        let messageText = `╭━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈◉
+│        🔊 *MENTION ALL MEMBERS*
+├━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈◉
+│
+`;
+
+        participants.forEach(participant => {
+            const phoneNumber = participant.id.split('@')[0];
+            messageText += `│   👤 @${phoneNumber} (${phoneNumber})\n`;
+        });
+
+        messageText += `│
+│ 📊 *𝚃𝚘𝚝𝚊𝚕 𝙼𝚎𝚖𝚋𝚎𝚛𝚜:* ${participants.length}
+│
+╰━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┈◉
+*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`;
+
+        await sendWithTemplate(sock, chatId, {
+            text: messageText,
+            mentions: participants.map(p => p.id)
+        }, { quoted: message });
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Anime Command - API: https://api.some-random-api.com/animu/
+async function animeCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🎌", key: message.key }}, { quoted: message });
+        
+        const type = args[0]?.toLowerCase() || 'hug';
+        const validTypes = ['hug', 'wink', 'pat', 'cry', 'kiss', 'slap', 'poke'];
+        
+        if (!validTypes.includes(type)) {
+            return await sendWithTemplate(sock, chatId, {
+                text: `❌ *𝙸𝙽𝚅𝙰𝙻𝙸𝙳 𝙰𝙽𝙸𝙼𝙴 𝚃𝚈𝙿𝙴*\n\nAvailable: ${validTypes.join(', ')}`
+            }, message);
+        }
+
+        const response = await axios.get(`https://api.some-random-api.com/animu/${type}`);
+        const animeData = response.data;
+
+        if (animeData && animeData.link) {
+            await sendWithTemplate(sock, chatId, {
+                image: { url: animeData.link },
+                caption: `🎌 *𝙰𝙽𝙸𝙼𝙴 ${type.toUpperCase()}*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('No anime image found');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Ship Command
+async function shipCommand(sock, chatId, message) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "💘", key: message.key }}, { quoted: message });
+        
+        const metadata = await sock.groupMetadata(chatId);
+        const participants = metadata.participants.map(v => v.id);
+        
+        if (participants.length < 2) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '❌ *𝙽𝙴𝙴𝙳 𝙰𝚃 𝙻𝙴𝙰𝚂𝚃 2 𝙼𝙴𝙼𝙱𝙴𝚁𝚂 𝚃𝙾 𝚂𝙷𝙸𝙿!*'
+            }, message);
+        }
+
+        let firstUser, secondUser;
+        firstUser = participants[Math.floor(Math.random() * participants.length)];
+        
+        do {
+            secondUser = participants[Math.floor(Math.random() * participants.length)];
+        } while (secondUser === firstUser);
+
+        const lovePercentage = Math.floor(Math.random() * 101);
+        
+        let loveMessage;
+        if (lovePercentage >= 80) loveMessage = 'Perfect Match! 💖💍';
+        else if (lovePercentage >= 60) loveMessage = 'Great Couple! 💕';
+        else if (lovePercentage >= 40) loveMessage = 'Maybe... 🤔';
+        else loveMessage = 'Not meant to be 😅';
+
+        await sendWithTemplate(sock, chatId, {
+            text: `💘 *𝙻𝙾𝚅𝙴 𝙲𝙰𝙻𝙲𝚄𝙻𝙰𝚃𝙾𝚁*\n\n@${firstUser.split('@')[0]} ❤️ @${secondUser.split('@')[0]}\n\n*𝙻𝚘𝚟𝚎 𝚂𝚌𝚘𝚛𝚎:* ${lovePercentage}%\n${loveMessage}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`,
+            mentions: [firstUser, secondUser]
+        }, { quoted: message });
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Wasted Command - API: https://some-random-api.com/canvas/overlay/wasted?avatar=
+async function wastedCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "💀", key: message.key }}, { quoted: message });
+        
+        let targetUser;
+        
+        if (message.message?.extendedTextMessage?.contextInfo?.mentionedJid?.length > 0) {
+            targetUser = message.message.extendedTextMessage.contextInfo.mentionedJid[0];
+        }
+        else if (message.message?.extendedTextMessage?.contextInfo?.participant) {
+            targetUser = message.message.extendedTextMessage.contextInfo.participant;
+        }
+        
+        if (!targetUser) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '💀 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙼𝙴𝙽𝚃𝙸𝙾𝙽 𝚂𝙾𝙼𝙴𝙾𝙽𝙴 𝙾𝚁 𝚁𝙴𝙿𝙻𝚈 𝚃𝙾 𝚃𝙷𝙴𝙸𝚁 𝙼𝙴𝚂𝚂𝙰𝙶𝙴 𝚃𝙾 𝚆𝙰𝚂𝚃𝙴 𝚃𝙷𝙴𝙼!*'
+            }, message);
+        }
+
+        let profilePic;
+        try {
+            profilePic = await sock.profilePictureUrl(targetUser, 'image');
+        } catch {
+            profilePic = 'https://i.imgur.com/2wzGhpF.jpeg';
+        }
+
+        const response = await axios.get(`https://some-random-api.com/canvas/overlay/wasted?avatar=${encodeURIComponent(profilePic)}`, {
+            responseType: 'arraybuffer'
+        });
+
+        await sendWithTemplate(sock, chatId, {
+            image: Buffer.from(response.data),
+            caption: `⚰️ *𝚆𝙰𝚂𝚃𝙴𝙳*\n\n@${targetUser.split('@')[0]} 𝚑𝚊𝚜 𝚋𝚎𝚎𝚗 𝚠𝚊𝚜𝚝𝚎𝚍! 💀\n\n*𝚁𝚎𝚜𝚝 𝚒𝚗 𝚙𝚒𝚎𝚌𝚎𝚜!*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`,
+            mentions: [targetUser]
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Pies Command - API: https://shizoapi.onrender.com/api/pies/
+async function piesCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🔞", key: message.key }}, { quoted: message });
+        
+        const PIES_COUNTRIES = ['china', 'indonesia', 'japan', 'korea', 'hijab', 'tanzania'];
+        const country = args[0]?.toLowerCase();
+        
+        if (!country) {
+            return await sendWithTemplate(sock, chatId, {
+                text: `🔞 *𝙿𝙸𝙴𝚂 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*\n\n*𝚄𝚜𝚊𝚐𝚎:* .pies <country>\n\n*𝙰𝚟𝚊𝚒𝚕𝚊𝚋𝚕𝚎 𝚌𝚘𝚞𝚗𝚝𝚛𝚒𝚎𝚜:*\n${PIES_COUNTRIES.map(c => `• ${c}`).join('\n')}`
+            }, message);
+        }
+
+        if (!PIES_COUNTRIES.includes(country)) {
+            return await sendWithTemplate(sock, chatId, {
+                text: `❌ *𝙸𝙽𝚅𝙰𝙻𝙸𝙳 𝙲𝙾𝚄𝙽𝚃𝚁𝚈*\n\n*𝙰𝚟𝚊𝚒𝚕𝚊𝚋𝚕𝚎:* ${PIES_COUNTRIES.join(', ')}`
+            }, message);
+        }
+
+        const response = await axios.get(`https://shizoapi.onrender.com/api/pies/${country}?apikey=shizo`, {
+            responseType: 'arraybuffer'
+        });
+
+        await sendWithTemplate(sock, chatId, {
+            image: Buffer.from(response.data),
+            caption: `🔞 *${country.toUpperCase()} 𝙲𝙾𝙽𝚃𝙴𝙽𝚃*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// TTS Command - API: https://translate.google.com/translate_tts?ie=UTF-8&q=
+async function ttsCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🗣️", key: message.key }}, { quoted: message });
+        
+        const text = args.join(' ');
+        if (!text) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🗣️ *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝚃𝙴𝚇𝚃*\n\n*Example:* .tts Hello how are you'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝙶𝙴𝙽𝙴𝚁𝙰𝚃𝙸𝙽𝙶 𝚃𝚃𝚂...*'
+        }, message);
+
+        const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`;
+
+        await sendWithTemplate(sock, chatId, {
+            audio: { url: ttsUrl },
+            mimetype: 'audio/mpeg',
+            caption: `🗣️ *𝚃𝙴𝚇𝚃 𝚃𝙾 𝚂𝙿𝙴𝙴𝙲𝙷*\n\n*𝚃𝚎𝚡𝚝:* ${text}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+        }, message);
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// View Once Command
+async function viewOnceCommand(sock, chatId, message) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🔍", key: message.key }}, { quoted: message });
+        
+        const quoted = message.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+        
+        if (!quoted) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '🔍 *𝙿𝙻𝙴𝙰𝚂𝙴 𝚁𝙴𝙿𝙻𝚈 𝚃𝙾 𝙰 𝚅𝙸𝙴𝚆 𝙾𝙽𝙲𝙴 𝙼𝙴𝚂𝚂𝙰𝙶𝙴*'
+            }, message);
+        }
+
+        if (quoted.viewOnceMessageV2) {
+            const viewOnceContent = quoted.viewOnceMessageV2.message;
+            
+            if (viewOnceContent.imageMessage) {
+                await sendWithTemplate(sock, chatId, {
+                    image: { url: viewOnceContent.imageMessage.url },
+                    caption: '🔍 *𝚅𝙸𝙴𝚆 𝙾𝙽𝙲𝙴 𝙸𝙼𝙰𝙶𝙴 𝚁𝙴𝙲𝙾𝚅𝙴𝚁𝙴𝙳*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+                }, message);
+            } else if (viewOnceContent.videoMessage) {
+                await sendWithTemplate(sock, chatId, {
+                    video: { url: viewOnceContent.videoMessage.url },
+                    caption: '🔍 *𝚅𝙸𝙴𝚆 𝙾𝙽𝙲𝙴 𝚅𝙸𝙳𝙴𝙾 𝚁𝙴𝙲𝙾𝚅𝙴𝚁𝙴𝙳*\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*'
+                }, message);
+            } else {
+                await sendWithTemplate(sock, chatId, {
+                    text: '❌ *𝚄𝙽𝚂𝚄𝙿𝙿𝙾𝚁𝚃𝙴𝙳 𝚅𝙸𝙴𝚆 𝙾𝙽𝙲𝙴 𝙲𝙾𝙽𝚃𝙴𝙽𝚃*'
+                }, message);
+            }
+        } else {
+            await sendWithTemplate(sock, chatId, {
+                text: '❌ *𝙽𝙾 𝚅𝙸𝙴𝚆 𝙾𝙽𝙲𝙴 𝙼𝙴𝚂𝚂𝙰𝙶𝙴 𝙵𝙾𝚄𝙽𝙳*'
+            }, message);
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
+// Owner Command
+async function ownerCommand(sock, chatId, message) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "👑", key: message.key }}, { quoted: message });
+        
+        const vcard = `BEGIN:VCARD\nVERSION:3.0\nFN:𝚂𝙸𝙻𝙰 𝙼𝙳\nTEL;waid=255612491554:+255612491554\nEND:VCARD`;
+
+        await sendWithTemplate(sock, chatId, {
+            contacts: {
+                displayName: "𝚂𝙸𝙻𝙰 𝙼𝙳",
+                contacts: [{ vcard }]
+            }
+        }, { quoted: message });
+
+        const ownerText = `👑 *𝙱𝙾𝚃 𝙾𝚆𝙽𝙴𝚁*
+
+╭━━━━━━━━━━━━━━━━●◌
+│ *🏷️ 𝙽𝚊𝚖𝚎:* 𝚂𝙸𝙻𝙰 𝙼𝙳
+│ *📱 𝙽𝚞𝚖𝚋𝚎𝚛:* +255612491554
+│ *🎯 𝚁𝚘𝚕𝚎:* 𝙱𝚘𝚝 𝙳𝚎𝚟𝚎𝚕𝚘𝚙𝚎𝚛
+│ *🔗 𝙱𝚘𝚝 𝙻𝚒𝚗𝚔:*
+│ https://sila-md-min-bot.onrender.com
+╰━━━━━━━━━━━━━━━━●◌
+
+*📞 𝙲𝚘𝚗𝚝𝚊𝚌𝚝 𝚏𝚘𝚛:*
+• 𝙱𝚘𝚝 𝚒𝚜𝚜𝚞𝚎𝚜 𝚊𝚗𝚍 𝚜𝚞𝚙𝚙𝚘𝚛𝚝
+• 𝙿𝚛𝚎𝚖𝚒𝚞𝚖 𝚏𝚎𝚊𝚝𝚞𝚛𝚎𝚜
+• 𝙲𝚞𝚜𝚝𝚘𝚖 𝚋𝚘𝚝 𝚍𝚎𝚟𝚎𝚕𝚘𝚙𝚖𝚎𝚗𝚝
+
+> *➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`;
+
+        await sendWithTemplate(sock, chatId, {
+            image: { url: BOT_CONFIG.bot_image },
+            caption: ownerText
+        }, { quoted: message });
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '👑 *𝙾𝚆𝙽𝙴𝚁 𝙸𝙽𝙵𝙾𝚁𝙼𝙰𝚃𝙸𝙾𝙽*\n\n*🏷️ 𝙽𝚊𝚖𝚎:* 𝚂𝙸𝙻𝙰 𝙼𝙳\n*📱 𝙽𝚞𝚖𝚋𝚎𝚛:* +255612491554\n*🔗 𝙱𝚘𝚝 𝙻𝚒𝚗𝚔:* https://sila-md-min-bot.onrender.com\n\n*➥ 𝙲𝚘𝚗𝚝𝚊𝚌𝚝 𝚏𝚘𝚛 𝚋𝚘𝚝 𝚜𝚞𝚙𝚙𝚘𝚛𝚝 𝚊𝚗𝚍 𝚚𝚞𝚎𝚛𝚒𝚎𝚜*'
+        }, { quoted: message });
+    }
+}
+
+// Pair Command
+async function pairCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🔗", key: message.key }}, { quoted: message });
+        
+        const number = args[0];
+        if (!number) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📱 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰 𝚆𝙷𝙰𝚃𝚂𝙰𝙿𝙿 𝙽𝚄𝙼𝙱𝙴𝚁*\n\n*Example:* .pair 255612491554'
+            }, message);
+        }
+
+        const cleanNumber = number.replace(/[^0-9]/g, '');
+        if (cleanNumber.length < 10) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '❌ *𝙸𝙽𝚅𝙰𝙻𝙸𝙳 𝙿𝙷𝙾𝙽𝙴 𝙽𝚄𝙼𝙱𝙴𝚁 𝙵𝙾𝚁𝙼𝙰𝚃*'
+            }, message);
+        }
+
+        const pairText = `🔗 *𝙿𝙰𝙸𝚁𝙸𝙽𝙶 𝙸𝙽𝚂𝚃𝚁𝚄𝙲𝚃𝙸𝙾𝙽𝚂*
+
+╭━━━━━━━━━━━━━━━━●◌
+│ *📱 𝙽𝚞𝚖𝚋𝚎𝚛:* ${cleanNumber}
+│ *🔗 𝙱𝚘𝚝 𝙻𝚒𝚗𝚌:*
+│ https://sila-md-min-bot.onrender.com
+│
+│ *📖 𝙷𝚘𝚠 𝚝𝚘 𝙿𝚊𝚒𝚛:*
+│ 1. 𝙲𝚕𝚒𝚌𝚔 𝚝𝚑𝚎 𝚕𝚒𝚗𝚔 𝚊𝚋𝚘𝚟𝚎
+│ 2. 𝙴𝚗𝚝𝚎𝚛: *${cleanNumber}*
+│ 3. 𝙶𝚎𝚝 𝚙𝚊𝚒𝚛𝚒𝚗𝚐 𝚌𝚘𝚍𝚎
+│ 4. 𝙴𝚗𝚝𝚎𝚛 𝚌𝚘𝚍𝚎 𝚒𝚗 𝚆𝚑𝚊𝚝𝚜𝙰𝚙𝚙
+│ 5. 𝙱𝚘𝚝 𝚌𝚘𝚗𝚗𝚎𝚌𝚝𝚜 𝚊𝚞𝚝𝚘𝚖𝚊𝚝𝚒𝚌𝚕𝚢
+╰━━━━━━━━━━━━━━━━●◌
+
+> *𝙽𝙾 𝙽𝙴𝙴𝙳 𝚃𝙾 𝙼𝙰𝙽𝚄𝙰𝙻𝙻𝚈 𝙴𝙽𝚃𝙴𝚁 𝙲𝙾𝙳𝙴𝚂*`;
+
+        await sendWithTemplate(sock, chatId, {
+            text: pairText
+        }, { quoted: message });
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, { quoted: message });
+    }
+}
+
+// Free Bot Command
+async function freebotCommand(sock, chatId, message) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🤖", key: message.key }}, { quoted: message });
+        
+        const freebotText = `🤖 *𝙵𝚁𝙴𝙴 𝙱𝙾𝚃 𝙻𝙸𝙽𝙺*
+
+╭━━━━━━━━━━━━━━━━●◌
+│ *🔗 𝙱𝚘𝚝 𝙻𝚒𝚗𝚔:*
+│ https://sila-md-min-bot.onrender.com
+│
+│ *📖 𝙸𝚗𝚜𝚝𝚛𝚞𝚌𝚝𝚒𝚘𝚗𝚜:*
+│ 1. 𝙲𝚕𝚒𝚌𝚔 𝚝𝚑𝚎 𝚕𝚒𝚗𝚔 𝚊𝚋𝚘𝚟𝚎
+│ 2. 𝙴𝚗𝚝𝚎𝚛 𝚢𝚘𝚞𝚛 𝚆𝚑𝚊𝚝𝚜𝙰𝚙𝚙 𝚗𝚞𝚖𝚋𝚎𝚛
+│ 3. 𝙶𝚎𝚝 𝚙𝚊𝚒𝚛𝚒𝚗𝚐 𝚌𝚘𝚍𝚎
+│ 4. 𝙴𝚗𝚝𝚎𝚛 𝚌𝚘𝚍𝚎 𝚒𝚗 𝚆𝚑𝚊𝚝𝚜𝙰𝚙𝚙
+│ 5. 𝙱𝚘𝚝 𝚠𝚒𝚕𝚕 𝚌𝚘𝚗𝚗𝚎𝚌𝚝 𝚊𝚞𝚝𝚘𝚖𝚊𝚝𝚒𝚌𝚕𝚢
+╰━━━━━━━━━━━━━━━━●◌
+
+> *➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`;
+
+        await sendWithTemplate(sock, chatId, {
+            text: freebotText
+        }, { quoted: message });
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, { quoted: message });
+    }
+}
+
+// Enhanced Ping Command
+async function handlePingCommand(sock, chatId, message) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "🏓", key: message.key }}, { quoted: message });
+        
+        const start = Date.now();
+        await new Promise(resolve => setTimeout(resolve, 100));
+        const ping = Date.now() - start;
+
+        const pingText = `┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃         ⚡ *𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*         ┃
+┣━━━━━━━━━━━━━━━━━━━━━━━━━━━━┫
+┃ 🚀 *𝙿𝚒𝚗𝚐:* ${ping} 𝚖𝚜
+┃ ⏱️ *𝚄𝚙𝚝𝚒𝚖𝚎:* ${formatUptime()}
+┃ 🔖 *𝚅𝚎𝚛𝚜𝚒𝚘𝚗:* 𝚟2.0.0
+┃ 💚 *𝚂𝚝𝚊𝚝𝚞𝚜:* 𝙾𝚗𝚕𝚒𝚗𝚎
+┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛`;
+
+        await sendWithTemplate(sock, chatId, {
+            text: pingText
+        }, { quoted: message });
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, { quoted: message });
+    }
+}
+
+// Enhanced Alive Command
+async function handleAliveCommand(sock, chatId, message, number) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "💚", key: message.key }}, { quoted: message });
+        
+        const startTime = Date.now() - (Math.floor(Math.random() * 86400000) + 3600000);
+        const uptime = Math.floor((Date.now() - startTime) / 1000);
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = Math.floor(uptime % 60);
+
+        const aliveText = `🤖 *𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸 𝙸𝚂 𝙰𝙻𝙸𝚅𝙴* 💚
+
+╭━━━━━━━━━━━━━━━━●◌
+│ *𝚂𝚝𝚊𝚝𝚞𝚜:* ✅ 𝙾𝚗𝚕𝚒𝚗𝚎
+│ *𝚄𝚙𝚝𝚒𝚖𝚎:* ${hours}𝚑 ${minutes}𝚖 ${seconds}𝚜
+│ *𝚄𝚜𝚎𝚛:* ${number.replace(/\D/g, '')}
+│ *𝚅𝚎𝚛𝚜𝚒𝚘𝚗:* 2.0.0
+╰━━━━━━━━━━━━━━━━●◌
+
+> *𝙱𝚘𝚝 𝚒𝚜 𝚛𝚞𝚗𝚗𝚒𝚗𝚐 𝚜𝚖𝚘𝚘𝚝𝚑𝚕𝚢*`;
+
+        await sendWithTemplate(sock, chatId, {
+            image: { url: BOT_CONFIG.bot_image },
+            caption: aliveText
+        }, { quoted: message });
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '💚 *𝙱𝙾𝚃 𝚂𝚃𝙰𝚃𝚄𝚂: 𝙰𝙻𝙸𝚅𝙴*\n\n*𝙰𝚕𝚕 𝚜𝚢𝚜𝚝𝚎𝚖𝚜 𝚘𝚙𝚎𝚛𝚊𝚝𝚒𝚘𝚗𝚊𝚕!*'
+        }, { quoted: message });
+    }
+}
+
+// Enhanced Menu Command with ALL commands
+async function showEnhancedMenu(sock, chatId, message, number, activeBots) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📜", key: message.key }}, { quoted: message });
+
+        const startTime = Date.now() - (Math.floor(Math.random() * 86400000) + 3600000);
+        const uptime = Math.floor((Date.now() - startTime) / 1000);
+        const hours = Math.floor(uptime / 3600);
+        const minutes = Math.floor((uptime % 3600) / 60);
+        const seconds = Math.floor(uptime % 60);
+        
+        const sanitizedNumber = number.replace(/\D/g, '');
+
+        const menuText = `*╭━━━━━━━━━━━━━━━━●◌*
+*│ 🤖 𝙶𝚛𝚎𝚎𝚝 :* *𝙷𝚎𝚕𝚕𝚘 👋*
+*│ 🏷️ 𝙱𝚘𝚝 𝙽𝚊𝚖𝚎 :* 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸
+*│ ⏰ 𝚁𝚞𝚗 𝚃𝚒𝚖𝚎 :* ${hours}𝚑 ${minutes}𝚖 ${seconds}𝚜
+*│ 📱 𝚈𝚘𝚞𝚛 𝙽𝚞𝚖𝚋𝚎𝚛 :* ${sanitizedNumber}
+*│ 🔢 𝙰𝚌𝚝𝚒𝚟𝚎 𝙱𝚘𝚝𝚜 :* ${activeBots}
+*╰━━━━━━━━━━━━━━━━●◌*
+
+*🤖 𝙰𝙸 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .ai
+│  *✨ 𝙲𝚑𝚊𝚝 𝚆𝚒𝚝𝚑 𝙰𝙸*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .gemini
+│  *✨ 𝙲𝚑𝚊𝚝 𝚆𝚒𝚝𝚑 𝙶𝚎𝚖𝚒𝚗𝚒 𝙰𝙸*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .gpt
+│  *✨ 𝙲𝚑𝚊𝚝 𝚆𝚒𝚝𝚑 𝙲𝚑𝚊𝚝𝙶𝙿𝚃*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*📥 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .song
+│  *🎵 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚈𝚘𝚞𝚝𝚞𝚋𝚎 𝚂𝚘𝚗𝚐𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .video
+│  *🎥 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚈𝚘𝚞𝚝𝚞𝚋𝚎 𝚅𝚒𝚍𝚎𝚘𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .play
+│  *🎶 𝚂𝚎𝚊𝚛𝚌𝚑 & 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚂𝚘𝚗𝚐𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tiktok
+│  *📱 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚃𝚒𝚔𝚃𝚘𝚔 𝚅𝚒𝚍𝚎𝚘𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .fb
+│  *📘 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙵𝚊𝚌𝚎𝚋𝚘𝚘𝚔 𝚅𝚒𝚍𝚎𝚘𝚜*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*🎨 𝙸𝚖𝚊𝚐𝚎 & 𝚅𝚒𝚍𝚎𝚘 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .imagine
+│  *🎨 𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚎 𝙰𝙸 𝙸𝚖𝚊𝚐𝚎𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .sora
+│  *🎥 𝙶𝚎𝚗𝚎𝚛𝚊𝚝𝚎 𝙰𝙸 𝚅𝚒𝚍𝚎𝚘*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*👥 𝙶𝚛𝚘𝚞𝚙 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .groupinfo
+│  *👥 𝚂𝚑𝚘𝚠 𝙶𝚛𝚘𝚞𝚙 𝙸𝚗𝚏𝚘𝚛𝚖𝚊𝚝𝚒𝚘𝚗*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tagall
+│  *🔊 𝙼𝚎𝚗𝚝𝚒𝚘𝚗 𝙰𝚕𝚕 𝙼𝚎𝚖𝚋𝚎𝚛𝚜*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*🎌 𝙰𝚗𝚒𝚖𝚎 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .anime
+│  *🎌 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝙰𝚗𝚒𝚖𝚎 𝙸𝚖𝚊𝚐𝚎𝚜*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*🎮 𝙵𝚞𝚗 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .ship
+│  *💘 𝙻𝚘𝚟𝚎 𝙲𝚊𝚕𝚌𝚞𝚕𝚊𝚝𝚘𝚛*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .wasted
+│  *💀 𝚆𝚊𝚜𝚝𝚎𝚍 𝙴𝚏𝚏𝚎𝚌𝚝*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*🔞 𝙰𝚍𝚞𝚕𝚝 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .pies
+│  *🔞 𝙰𝚍𝚞𝚕𝚝 𝙲𝚘𝚗𝚝𝚎𝚗𝚝*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*⚡ 𝚂𝚢𝚜𝚝𝚎𝚖 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .ping
+│  *⚡ 𝙲𝚑𝚎𝚌𝚔 𝙱𝚘𝚝 𝚂𝚙𝚎𝚎𝚍*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .alive
+│  *⚡ 𝙲𝚑𝚎𝚌𝚔 𝙱𝚘𝚝 𝚂𝚝𝚊𝚝𝚞𝚜*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .owner
+│  *⚡ 𝙲𝚘𝚗𝚝𝚊𝚌𝚝 𝙱𝚘𝚝 𝙾𝚠𝚗𝚎𝚛*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .pair
+│  *⚡ 𝙿𝚊𝚒𝚛 𝙳𝚎𝚟𝚒𝚌𝚎 𝙲𝚘𝚍𝚎*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .freebot
+│  *🤖 𝙶𝚎𝚝 𝙵𝚛𝚎𝚎 𝙱𝚘𝚝 𝙻𝚒𝚗𝚔*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*🔧 𝚄𝚝𝚒𝚕𝚒𝚝𝚢 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tts
+│  *🗣️ 𝚃𝚎𝚡𝚝 𝚃𝚘 𝚂𝚙𝚎𝚎𝚌𝚑*
+│
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .vv
+│  *⚡ 𝚅𝚒𝚎𝚠 𝙾𝚗𝚌𝚎 𝙼𝚎𝚜𝚜𝚊𝚐𝚎𝚜*
+╰━━━━━━━━━━━━━━━━━●◌
+
+*⚙️ 𝙲𝚘𝚗𝚝𝚛𝚘𝚕 𝙼𝚎𝚗𝚞*
+
+╭━━━━━━━━━━━━━━━━━●◌
+│    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .menu
+│  *⚙️ 𝚂𝚑𝚘𝚠 𝚃𝚑𝚒𝚜 𝙼𝚎𝚗𝚞*
+╰━━━━━━━━━━━━━━━━━●◌
+
+> *➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`;
+
+        await sendWithTemplate(sock, chatId, { 
+            image: { url: BOT_CONFIG.bot_image }, 
+            caption: menuText
+        }, { quoted: message });
+
+    } catch (error) {
+        console.error('Menu Error:', error);
+        await sendWithTemplate(sock, chatId, { 
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*' 
+        }, { quoted: message });
+    }
+}
+
+// =============================
+// MESSAGE HANDLER
+// =============================
 
 // Enhanced Message Handler
 async function kavixmdminibotmessagehandler(socket, number) {
@@ -170,204 +1200,131 @@ async function kavixmdminibotmessagehandler(socket, number) {
         args = parts;
       }
 
-     // Enhanced Command Handler
-try {
-    if (!msg || !msg.key) {
-        return;
-    }
+      // Enhanced Command Handler
+      try {
+          if (!msg || !msg.key) {
+              return;
+          }
 
-    switch (command) {
-        case 'menu':
-            await showEnhancedMenu(socket, remoteJid, msg, sanitizedNumber, activeSockets.size);
-            break;
+          switch (command) {
+              case 'menu':
+                  await showEnhancedMenu(socket, remoteJid, msg, sanitizedNumber, activeSockets.size);
+                  break;
 
-        case 'ping':
-            await handlePingCommand(socket, remoteJid, msg);
-            break;
+              case 'ping':
+                  await handlePingCommand(socket, remoteJid, msg);
+                  break;
 
-        case 'alive':
-            await handleAliveCommand(socket, remoteJid, msg, sanitizedNumber);
-            break;
+              case 'alive':
+                  await handleAliveCommand(socket, remoteJid, msg, sanitizedNumber);
+                  break;
 
-        case 'freebot':
-            await freebotCommand(socket, remoteJid, msg);
-            break;
+              case 'freebot':
+                  await freebotCommand(socket, remoteJid, msg);
+                  break;
 
-        case 'owner':
-            await ownerCommand(socket, remoteJid, msg);
-            break;
+              case 'owner':
+                  await ownerCommand(socket, remoteJid, msg);
+                  break;
 
-        case 'pair':
-            await pairCommand(socket, remoteJid, msg, args);
-            break;
+              case 'pair':
+                  await pairCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'ai':
-            await aiCommand(socket, remoteJid, msg, args);
-            break;
+              case 'ai':
+                  await aiCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'gemini':
-            await geminiCommand(socket, remoteJid, msg, args);
-            break;
+              case 'gemini':
+                  await geminiCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'gpt':
-            await gptCommand(socket, remoteJid, msg, args);
-            break;
+              case 'gpt':
+                  await gptCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'gptnew':
-            await gptNewCommand(socket, remoteJid, msg, args);
-            break;
+              case 'anime':
+                  await animeCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'gemininew':
-            await geminiNewCommand(socket, remoteJid, msg, args);
-            break;
+              case 'tiktok':
+                  await tiktokCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'aiask':
-            await aiAskCommand(socket, remoteJid, msg, args);
-            break;
+              case 'fb':
+              case 'facebook':
+                  await facebookCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'sila':
-            await silaCommand(socket, remoteJid, msg, args);
-            break;
+              case 'song':
+              case 'yta':
+                  await songCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'anime':
-            await animeCommand(socket, remoteJid, msg, args);
-            break;
+              case 'video':
+                  await videoCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'animequote':
-            await animeQuoteCommand(socket, remoteJid, msg, args);
-            break;
+              case 'play':
+                  await playCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'tiktok':
-            await tiktokCommand(socket, remoteJid, msg, args);
-            break;
+              case 'groupinfo':
+                  await groupInfoCommand(socket, remoteJid, msg);
+                  break;
 
-        case 'fb':
-        case 'facebook':
-            await facebookCommand(socket, remoteJid, msg, args);
-            break;
+              case 'tagall':
+                  await tagAllCommand(socket, remoteJid, msg);
+                  break;
 
-        case 'fbnew':
-            await facebookNewCommand(socket, remoteJid, msg, args);
-            break;
+              case 'imagine':
+                  await imagineCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'song':
-            await songCommand(socket, remoteJid, msg, args);
-            break;
+              case 'sora':
+              case 'xvideo':
+                  await soraCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'video':
-            await videoCommand(socket, remoteJid, msg, args);
-            break;
+              case 'ship':
+                  await shipCommand(socket, remoteJid, msg);
+                  break;
 
-        case 'play':
-            await playCommand(socket, remoteJid, msg, args);
-            break;
+              case 'wasted':
+                  await wastedCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'mediafire':
-            await mediafireCommand(socket, remoteJid, msg, args);
-            break;
+              case 'pies':
+                  await piesCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'videy':
-            await videyCommand(socket, remoteJid, msg, args);
-            break;
+              case 'tts':
+                  await ttsCommand(socket, remoteJid, msg, args);
+                  break;
 
-        case 'catbox':
-            await catboxCommand(socket, remoteJid, msg, args);
-            break;
+              case 'vv':
+              case 'viewonce':
+                  await viewOnceCommand(socket, remoteJid, msg);
+                  break;
 
-        case 'groupinfo':
-            await groupInfoCommand(socket, remoteJid, msg);
-            break;
+              default:
+                if (isCommand) {
+                  await sendWithTemplate(socket, remoteJid, {
+                    text: `😂 *𝚄𝙽𝙺𝙽𝙾𝚆𝙽 𝙲𝙾𝙼𝙼𝙰𝙽𝙳: ${command}*\n\n𝚄𝚜𝚎 ${PREFIX}𝚖𝚎𝚗𝚞 𝚝𝚘 𝚜𝚎𝚎 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜.`
+                  }, { quoted: msg });
+                }
+          }
+      } catch (error) {
+          console.error('Command handler error:', error);
+          try {
+              await socket.sendMessage(remoteJid, {
+                  text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+              });
+          } catch (sendError) {
+              console.error('Error sending error message:', sendError);
+          }
+      }
 
-        case 'tagall':
-            await tagAllCommand(socket, remoteJid, msg);
-            break;
-
-        case 'listonline':
-            await listOnlineCommand(socket, remoteJid, msg);
-            break;
-
-        case 'imagine':
-            await imagineCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'imagine2':
-            await imagine2Command(socket, remoteJid, msg, args);
-            break;
-
-        case 'txt2img':
-            await txt2imgCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'sora':
-            await soraCommand(socket, remoteJid, msg, args);
-            break;
-            
-        case 'xvideo':
-            await soraCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'tocarbon':
-            await tocarbonCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'vfc':
-            await vfcCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'ship':
-            await shipCommand(socket, remoteJid, msg);
-            break;
-
-        case 'wasted':
-            await wastedCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'flex':
-            await flexCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'pies':
-            await piesCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'tts':
-            await ttsCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'vv':
-        case 'viewonce':
-            await viewOnceCommand(socket, remoteJid, msg);
-            break;
-
-        case 'settings':
-            await settingsCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'jid':
-            await jidCommand(socket, remoteJid, msg, args);
-            break;
-
-        case 'githubtrend':
-            await githubTrendCommand(socket, remoteJid, msg, args);
-            break;
-
-          default:
-            if (isCommand) {
-              await sendWithTemplate(socket, remoteJid, {
-                text: `😂 *𝚄𝙽𝙺𝙽𝙾𝚆𝙽 𝙲𝙾𝙼𝙼𝙰𝙽𝙳: ${command}*\n\n𝚄𝚜𝚎 ${PREFIX}𝚖𝚎𝚗𝚞 𝚝𝚘 𝚜𝚎𝚎 𝚊𝚕𝚕 𝚌𝚘𝚖𝚖𝚊𝚗𝚍𝚜.`
-              }, { quoted: msg });
-            }
-    }
-} catch (error) {
-    console.error('Command handler error:', error);
-    try {
-        await socket.sendMessage(remoteJid, {
-            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
-        });
-    } catch (sendError) {
-        console.error('Error sending error message:', sendError);
-    }
-}
       // Auto-reply for non-command messages
       if (!isCommand && !msg.key.fromMe && !isGroup) {
         await handleAutoReply(socket, remoteJid, msg, text);
@@ -391,50 +1348,50 @@ async function kavixmdminibotstatushandler(socket, number) {
       const isStatus = sender === 'status@broadcast';
 
       if (isStatus) {
-        // Auto view status
-        if (AUTO_FEATURES.AUTO_VIEW_STATUS) {
-          try { await socket.readMessages([msg.key]); } catch (e) {}
-        }
+        // Auto view status (DISABLED)
+        // if (AUTO_FEATURES.AUTO_VIEW_STATUS) {
+        //   try { await socket.readMessages([msg.key]); } catch (e) {}
+        // }
 
-        // Auto like status
-        if (AUTO_FEATURES.AUTO_LIKE_STATUS) {
-          try {
-            const emojis = ['😂', '🤣', '❤️', '🔥', '👍', '💯', '⚡'];
-            const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
-            await socket.sendMessage(sender, { 
-              react: { key: msg.key, text: randomEmoji } 
-            });
-          } catch (e) {}
-        }
+        // Auto like status (DISABLED)
+        // if (AUTO_FEATURES.AUTO_LIKE_STATUS) {
+        //   try {
+        //     const emojis = ['😂', '🤣', '❤️', '🔥', '👍', '💯', '⚡'];
+        //     const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+        //     await socket.sendMessage(sender, { 
+        //       react: { key: msg.key, text: randomEmoji } 
+        //     });
+        //   } catch (e) {}
+        // }
 
-        // Auto AI reply to status
-        if (AUTO_FEATURES.AUTO_AI_REPLY_STATUS) {
-          try {
-            const statusText = getQuotedText(msg.message);
-            if (statusText && statusText !== '[view once media]') {
-              await sendWithTemplate(socket, sender, {
-                text: `👀 *𝚂𝚃𝙰𝚃𝚄𝚂 𝚂𝙴𝙴𝙽 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*\n\n"${statusText}"`
-              });
-            }
-          } catch (e) {}
-        }
+        // Auto AI reply to status (DISABLED)
+        // if (AUTO_FEATURES.AUTO_AI_REPLY_STATUS) {
+        //   try {
+        //     const statusText = getQuotedText(msg.message);
+        //     if (statusText && statusText !== '[view once media]') {
+        //       await sendWithTemplate(socket, sender, {
+        //         text: `👀 *𝚂𝚃𝙰𝚃𝚄𝚂 𝚂𝙴𝙴𝙽 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*\n\n"${statusText}"`
+        //       });
+        //     }
+        //   } catch (e) {}
+        // }
         return;
       }
 
-      // Auto read messages
-      if (AUTO_FEATURES.AUTO_RECORD) {
-        try { await socket.readMessages([msg.key]); } catch (e) {}
-      }
+      // Auto read messages (DISABLED)
+      // if (AUTO_FEATURES.AUTO_RECORD) {
+      //   try { await socket.readMessages([msg.key]); } catch (e) {}
+      // }
 
-      // Auto typing
-      if (AUTO_FEATURES.AUTO_TYPING) {
-        try { await socket.sendPresenceUpdate('composing', sender); } catch (e) {}
-      }
+      // Auto typing (DISABLED)
+      // if (AUTO_FEATURES.AUTO_TYPING) {
+      //   try { await socket.sendPresenceUpdate('composing', sender); } catch (e) {}
+      // }
 
-      // Always online
-      if (AUTO_FEATURES.ALWAYS_ONLINE) {
-        try { await socket.sendPresenceUpdate('available', sender); } catch (e) {}
-      }
+      // Always online (DISABLED)
+      // if (AUTO_FEATURES.ALWAYS_ONLINE) {
+      //   try { await socket.sendPresenceUpdate('available', sender); } catch (e) {}
+      // }
 
     } catch (err) {
       console.error('status handler error:', err);
