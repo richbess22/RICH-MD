@@ -708,6 +708,48 @@ async function videyCommand(sock, chatId, message, args) {
     }
 }
 
+// Catbox Command - API: https://catbox.moe/user/api.php
+async function catboxCommand(sock, chatId, message, args) {
+    try {
+        await sock.sendMessage(chatId, { react: { text: "📤", key: message.key }}, { quoted: message });
+        
+        const url = args[0];
+        if (!url) {
+            return await sendWithTemplate(sock, chatId, {
+                text: '📤 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰𝙽 𝙸𝙼𝙰𝙶𝙴 𝚄𝚁𝙻*\n\n*Example:* .catbox https://example.com/image.jpg'
+            }, message);
+        }
+
+        await sendWithTemplate(sock, chatId, {
+            text: '🔄 *𝚄𝙿𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙾 𝙲𝙰𝚃𝙱𝙾𝚇...*'
+        }, message);
+
+        const formData = new FormData();
+        formData.append('url', url);
+
+        const response = await axios.post(`https://catbox.moe/user/api.php`, formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+
+        const catboxUrl = response.data;
+
+        if (catboxUrl) {
+            await sendWithTemplate(sock, chatId, {
+                text: `📤 *𝙲𝙰𝚃𝙱𝙾𝚇 𝚄𝚁𝙻*\n\n${catboxUrl}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
+            }, message);
+        } else {
+            throw new Error('Upload failed');
+        }
+
+    } catch (error) {
+        await sendWithTemplate(sock, chatId, {
+            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
+        }, message);
+    }
+}
+
 // =============================
 // ANIME COMMANDS
 // =============================
@@ -1158,48 +1200,6 @@ async function githubTrendCommand(sock, chatId, message, args) {
     }
 }
 
-// Catbox Command - API: https://catbox.moe/user/api.php
-async function catboxCommand(sock, chatId, message, args) {
-    try {
-        await sock.sendMessage(chatId, { react: { text: "📤", key: message.key }}, { quoted: message });
-        
-        const url = args[0];
-        if (!url) {
-            return await sendWithTemplate(sock, chatId, {
-                text: '📤 *𝙿𝙻𝙴𝙰𝚂𝙴 𝙿𝚁𝙾𝚅𝙸𝙳𝙴 𝙰𝙽 𝙸𝙼𝙰𝙶𝙴 𝚄𝚁𝙻*\n\n*Example:* .catbox https://example.com/image.jpg'
-            }, message);
-        }
-
-        await sendWithTemplate(sock, chatId, {
-            text: '🔄 *𝚄𝙿𝙻𝙾𝙰𝙳𝙸𝙽𝙶 𝚃𝙾 𝙲𝙰𝚃𝙱𝙾𝚇...*'
-        }, message);
-
-        const formData = new FormData();
-        formData.append('url', url);
-
-        const response = await axios.post(`https://catbox.moe/user/api.php`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-
-        const catboxUrl = response.data;
-
-        if (catboxUrl) {
-            await sendWithTemplate(sock, chatId, {
-                text: `📤 *𝙲𝙰𝚃𝙱𝙾𝚇 𝚄𝚁𝙻*\n\n${catboxUrl}\n\n*➥ 𝙿𝙾𝚆𝙴𝚁𝙴𝙳 𝙱𝚈 𝚂𝙸𝙻𝙰 𝙼𝙳 𝙼𝙸𝙽𝙸*`
-            }, message);
-        } else {
-            throw new Error('Upload failed');
-        }
-
-    } catch (error) {
-        await sendWithTemplate(sock, chatId, {
-            text: '❌ *𝙴𝚁𝚁𝙾𝚁 𝙿𝚁𝙾𝙲𝙴𝚂𝚂𝙸𝙽𝙶 𝚈𝙾𝚄𝚁 𝙲𝙾𝙼𝙼𝙰𝙽𝙳*'
-        }, message);
-    }
-}
-
 // View Once Command
 async function viewOnceCommand(sock, chatId, message) {
     try {
@@ -1340,7 +1340,7 @@ async function ownerCommand(sock, chatId, message) {
 │ *🏷️ 𝙽𝚊𝚖𝚎:* 𝚂𝙸𝙻𝙰 𝙼𝙳
 │ *📱 𝙽𝚞𝚖𝚋𝚎𝚛:* +255612491554
 │ *🎯 𝚁𝚘𝚕𝚎:* 𝙱𝚘𝚝 𝙳𝚎𝚟𝚎𝚕𝚘𝚙𝚎𝚛
-│ *🔗 𝙱𝚘𝚝 𝙻𝚒𝚗𝚌:*
+│ *🔗 𝙱𝚘𝚝 𝙻𝚒𝚗𝚔:*
 │ https://sila-md-min-bot.onrender.com
 ╰━━━━━━━━━━━━━━━━●◌
 
@@ -1561,7 +1561,7 @@ async function showEnhancedMenu(sock, chatId, message, number, activeBots) {
 │  *🎥 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚈𝚘𝚞𝚝𝚞𝚋𝚎 𝚅𝚒𝚍𝚎𝚘𝚜*
 │
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .play
-│  *🎶 𝚂𝚎𝚊𝚛𝚌𝚑 & 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚂𝚘𝚗𝚐𝚜*
+│  *🎶 𝚂𝚎𝚊𝚛𝚌𝙷 & 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚂𝚘𝚗𝚐𝚜*
 │
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .tiktok
 │  *📱 𝙳𝚘𝚠𝚗𝚕𝚘𝚊𝚍 𝚃𝚒𝚔𝚃𝚘𝚔 𝚅𝚒𝚍𝚎𝚘𝚜*
@@ -1687,7 +1687,7 @@ async function showEnhancedMenu(sock, chatId, message, number, activeBots) {
 │  *🆔 𝙶𝚎𝚝 𝙹𝙸𝙳 𝙸𝚗𝚏𝚘*
 │
 │    *🔹 𝙲𝚘𝚖𝚖𝚊𝚗𝚍 :* .vv
-│  *⚡ 𝚅𝚒𝚎𝚠 𝙾𝚗𝚌𝚎 𝙼𝚎𝚜𝚜𝚊𝚐𝚎𝚜*
+│  *⚡ 𝚅𝚒𝚎𝚠 𝙾𝚗𝚌𝚎 𝙼𝚎𝚜𝚂𝚊𝙶𝙴𝚂*
 ╰━━━━━━━━━━━━━━━━━●◌
 
 *🔧 𝚄𝚝𝚒𝚕𝚒𝚝𝚢 𝙼𝚎𝚗𝚞*
@@ -1815,7 +1815,10 @@ function formatUptime() {
     return `${hours}𝚑 ${minutes}𝚖 ${seconds}𝚜`;
 }
 
-// Export all commands
+// =============================
+// EXPORT ALL COMMANDS
+// =============================
+
 module.exports = {
     // AI Commands
     aiCommand,
