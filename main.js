@@ -1536,10 +1536,7 @@ async function EmpirePair(number, res) {
             responded = true;
             res.status(200).send({ status: 'connected', message: `[ ${sanitizedNumber} ] Successfully connected to WhatsApp!` });
           }
-        }
-      } catch (connErr) {
-        console.error('connection.update handler error', connErr);
-      }
+        }      
     });
 
     if (!socket.authState.creds.registered) {
