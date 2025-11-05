@@ -1400,102 +1400,99 @@ async function kavixmdminibotstatushandler(socket, number) {
 }
 
 // Core Bot Function
-async function cyberkaviminibot(number, res) {
-  const sanitizedNumber = number.replace(/[^0-9]/g, '');
-  const sessionPath = path.join(SESSION_BASE_PATH, `session_${sanitizedNumber}`);
+async function EmpirePair(number, res) {
+    const sanitizedNumber = number.replace(/[^0-9]/g, '');
+    const sessionPath = path.join(SESSION_BASE_PATH, `session_${sanitizedNumber}`);
 
-  try {
-    await storageAPI.saveSettings(sanitizedNumber);
+    // Check if already connected
+    if (activeSockets.has(sanitizedNumber)) {
+        if (!res.headersSent) {
+            res.send({ 
+                status: 'already_connected',
+                message: 'This number is already connected'
+            });
+        }
+        return;
+    }
+
+    await cleanDuplicateFiles(sanitizedNumber);
+
+    const restoredCreds = await restoreSession(sanitizedNumber);
+    if (restoredCreds) {
+        fs.ensureDirSync(sessionPath);
+        fs.writeFileSync(path.join(sessionPath, 'creds.json'), JSON.stringify(restoredCreds, null, 2));
+        console.log(`Successfully restored session for ${sanitizedNumber}`);
+    }
+
     const { state, saveCreds } = await useMultiFileAuthState(sessionPath);
-    const logger = pino({ level: process.env.LOG_LEVEL || 'silent' });
+    const logger = pino({ level: process.env.NODE_ENV === 'production' ? 'fatal' : 'debug' });
 
-    const socket = makeWASocket({
-      auth: { creds: state.creds, keys: makeCacheableSignalKeyStore(state.keys, logger) },
-      printQRInTerminal: false,
-      logger,
-      browser: Browsers.macOS('Safari'),
-      markOnlineOnConnect: false,
-      generateHighQualityLinkPreview: false,
-      syncFullHistory: false,
-      defaultQueryTimeoutMs: 60000
-    });
+    try {
+        const socket = makeWASocket({
+            auth: {
+                creds: state.creds,
+                keys: makeCacheableSignalKeyStore(state.keys, logger),
+            },
+            printQRInTerminal: false,
+            logger,
+            browser: Browsers.windows('Chrome')
+        });
 
-    socket.decodeJid = (jid) => {
-      if (!jid) return jid;
-      if (/:\d+@/gi.test(jid)) {
-        const decoded = jidDecode(jid) || {};
-        return (decoded.user && decoded.server) ? decoded.user + '@' + decoded.server : jid;
-      } else return jid;
-    };
+        socketCreationTime.set(sanitizedNumber, Date.now());
 
-    socketCreationTime.set(sanitizedNumber, Date.now());
+        // Load user config
+        const userConfig = await loadUserConfig(sanitizedNumber);
+        
+        setupSocketHandlers(socket, sanitizedNumber, userConfig);
+        setupAutoRestart(socket, sanitizedNumber);
 
-    await kavixmdminibotmessagehandler(socket, sanitizedNumber);
-    await kavixmdminibotstatushandler(socket, sanitizedNumber);
-
-    let responseStatus = { codeSent: false, connected: false, error: null };
-    let responded = false;
-
-    socket.ev.on('creds.update', async () => {
-      try { await saveCreds(); } catch (e) { console.error('creds.update save error', e); }
-    });
-
-    socket.ev.on('connection.update', async (update) => {
-      try {
-        const { connection, lastDisconnect } = update;
-
-        if (connection === 'close') {
-          const statusCode = lastDisconnect?.error?.output?.statusCode;
-          const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-
-          switch (statusCode) {
-            case DisconnectReason.badSession:
-            case DisconnectReason.loggedOut:
-              try { fs.removeSync(sessionPath); } catch (e) { console.error('error clearing session', e); }
-              responseStatus.error = 'Session invalid or logged out. Please pair again.';
-              break;
-            case DisconnectReason.connectionClosed:
-              responseStatus.error = 'Connection was closed by WhatsApp';
-              break;
-            case DisconnectReason.connectionLost:
-              responseStatus.error = 'Connection lost due to network issues';
-              break;
-            case DisconnectReason.connectionReplaced:
-              responseStatus.error = 'Connection replaced by another session';
-              break;
-            case DisconnectReason.restartRequired:
-              responseStatus.error = 'WhatsApp requires restart';
-              try { socket.ws?.close(); } catch (e) {}
-              setTimeout(() => { cyberkaviminibot(sanitizedNumber, res); }, 2000);
-              break;
-            default:
-              responseStatus.error = shouldReconnect ? 'Unexpected disconnection. Attempting to reconnect...' : 'Connection terminated. Please try pairing again.';
-          }
-
-          activeSockets.delete(sanitizedNumber);
-          socketCreationTime.delete(sanitizedNumber);
-
-          if (!responded && res && !res.headersSent) {
-            responded = true;
-            res.status(500).send({ status: 'error', message: `[ ${sanitizedNumber} ] ${responseStatus.error}` });
-          }
-        } else if (connection === 'connecting') {
-          console.log(`[ ${sanitizedNumber} ] Connecting...`);
-        } else if (connection === 'open') {
-          console.log(`[ ${sanitizedNumber} ] Connected successfully!`);
-          activeSockets.set(sanitizedNumber, socket);
-          responseStatus.connected = true;
-
-          try {
-            const credsFilePath = path.join(sessionPath, 'creds.json');
-            if (!fs.existsSync(credsFilePath)) {
-              console.error("File not found:", credsFilePath);
-              if (!responded && res && !res.headersSent) {
-                responded = true;
-                res.status(500).send({ status: 'error', message: "File not found" });
-              }
-              return;
+        if (!socket.authState.creds.registered) {
+            let retries = parseInt(userConfig.MAX_RETRIES) || 3;
+            let code;
+            while (retries > 0) {
+                try {
+                    await delay(1500);
+                    code = await socket.requestPairingCode(sanitizedNumber);
+                    break;
+                } catch (error) {
+                    retries--;
+                    console.warn(`Failed to request pairing code: ${retries}, ${error.message}`);
+                    await delay(2000 * (parseInt(userConfig.MAX_RETRIES) - retries));
+                }
             }
+            if (!res.headersSent) {
+                res.send({ code });
+            }
+        }
+
+        socket.ev.on('creds.update', async () => {
+            await saveCreds();
+            const fileContent = await fs.readFile(path.join(sessionPath, 'creds.json'), 'utf8');
+            
+            if (octokit) {
+                let sha;
+                try {
+                    const { data } = await octokit.repos.getContent({
+                        owner,
+                        repo,
+                        path: `session/creds_${sanitizedNumber}.json`
+                    });
+                    sha = data.sha;
+                } catch (error) {
+                    // File doesn't exist yet, no sha needed
+                }
+
+                await octokit.repos.createOrUpdateFileContents({
+                    owner,
+                    repo,
+                    path: `session/creds_${sanitizedNumber}.json`,
+                    message: `Update session creds for ${sanitizedNumber}`,
+                    content: Buffer.from(fileContent).toString('base64'),
+                    sha
+                });
+                console.log(`Updated creds for ${sanitizedNumber} in GitHub`);
+            }
+        });
 
             // Send success message to user with forwarding
             try { 
