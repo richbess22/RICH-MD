@@ -1,2 +1,2 @@
-# Queen-Jusmy-Mini
+# SILA-MD-Mini
 Q Jusmy Mini Edition
